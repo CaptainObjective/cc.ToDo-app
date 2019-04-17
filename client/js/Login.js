@@ -1,30 +1,26 @@
-
-
 class Login {
     constructor() {
-        this._text =
-            {
-                email: "Adres e-mail",
-                reEmail: "Potwierdź adres e-mail",
-                password: "Hasło ",
-                rePassword: "Powtórz hasło",
-                submit: "Zaloguj się",
-                reSubmit: "Zarejestruj się",
-                name: "Imię",
-                signUp: "Nie mam konta",
-                "login-email-error": "Błędny adres e-mail",
-                "login-password-error": "Hasło powinno zawierać wielką literę, liczbę i znak specjalny",
-                "login-reEmail-error": "Podane adresy różnią się",
-                "login-rePassword-error": "Hasła różnią się"
-            }
-        this._flags =
-            {
-                filledInputs: false,
-                correctEmail: false,
-                sameEmails: false,
-                correctPassword: false,
-                samePasswords: false
-            }
+        this._text = {
+            email: "Adres e-mail",
+            reEmail: "Potwierdź adres e-mail",
+            password: "Hasło ",
+            rePassword: "Powtórz hasło",
+            submit: "Zaloguj się",
+            reSubmit: "Zarejestruj się",
+            name: "Imię",
+            signUp: "Nie mam konta",
+            "login-email-error": "Błędny adres e-mail",
+            "login-password-error": "Hasło powinno zawierać wielką literę, liczbę i znak specjalny",
+            "login-reEmail-error": "Podane adresy różnią się",
+            "login-rePassword-error": "Hasła różnią się"
+        }
+        this._flags = {
+            filledInputs: false,
+            correctEmail: false,
+            sameEmails: false,
+            correctPassword: false,
+            samePasswords: false
+        }
         this._isNew = false;
         this._form = document.createElement("form");
         this._form.classList.add("login-form");
@@ -81,8 +77,7 @@ class Login {
 
 
             this._submit.value = this._text.reSubmit;
-        }
-        else {
+        } else {
             this._isNew = false;
             [...this._form.getElementsByClassName("login-added")].forEach(el => {
                 this._inputGood(el);
@@ -101,24 +96,23 @@ class Login {
         let apiUrl;
         if (!this._isNew) {
             apiUrl = "api/auth";
-        }
-        else {
+        } else {
             apiUrl = "api/reqister"
         }
         requestBody.email = this._email.value;
         requestBody.password = this._password.value;
         try {
-            const response = await fetch(apiUrl,
-                {
-                    method: "post",
-                    headers: { "Content-type": "application/json; charset=UTF-8" },
-                    body: JSON.stringify(requestBody)
-                });
+            const response = await fetch(apiUrl, {
+                method: "post",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                },
+                body: JSON.stringify(requestBody)
+            });
             if (response.status !== 200) throw response;
 
             //obsługa logowania
-        }
-        catch (error) {
+        } catch (error) {
             console.log(error);
             // obsługa błędu w zależności od rodzaju błędu
         }
@@ -142,8 +136,7 @@ class Login {
         errorText.classList.add("login-error");
         if (!input.value) {
             errorText.innerText = "Pole wymagane";
-        }
-        else {
+        } else {
             errorText.innerText = this._text[`${input.id}-error`]
         }
         this._form.insertBefore(errorText, input);
@@ -169,25 +162,21 @@ class Login {
                 if (this._flags.sameEmails) this._inputGood(this._reEmail);
                 else this._inputWrong(this._reEmail);
             }
-        }
-        else if (input === this._password) {
+        } else if (input === this._password) {
             if (this._flags.correctPassword) this._inputGood(input);
             else this._inputWrong(input);
             if (this._isNew && this._rePassword.value) {
                 if (this._flags.samePasswords) this._inputGood(this._rePassword);
                 else this._inputWrong(this._rePassword);
             }
-        }
-        else if (input === this._reEmail) {
+        } else if (input === this._reEmail) {
             console.log(input.value);
             if (this._flags.sameEmails) this._inputGood(input);
             else this._inputWrong(input);
-        }
-        else if (input === this._rePassword) {
+        } else if (input === this._rePassword) {
             if (this._flags.samePasswords) this._inputGood(input);
             else this._inputWrong(input);
-        }
-        else this._inputGood(input);
+        } else this._inputGood(input);
 
     }
 
@@ -198,8 +187,7 @@ class Login {
         if (this._isNew) {
             this._flags.sameEmails = (this._email.value === this._reEmail.value);
             this._flags.samePasswords = (this._password.value === this._rePassword.value);
-        }
-        else {
+        } else {
             this._flags.sameEmails = this._flags.samePasswords = true;
         }
         this._submitOnOff.call(this);

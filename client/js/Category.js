@@ -9,6 +9,8 @@ class Category {
         this._categoryName = ''
         this._index = 0
         this._tasksList = [];
+        this._createDate = '';
+        this._thisButton = '';
         this._category = document.createElement('div')
         this._category.classList.add('category')
         this._categoryHeader = document.createElement('div')
@@ -25,7 +27,6 @@ class Category {
         this._categoryHeader.appendChild(this._categoryHeaderTitle)
         this._categoryHeader.appendChild(this._categoryDeleteButton)
         this._categoryDeleteButton.addEventListener('click', this.showDeletePopup.bind(this))
-        this._thisButton = ''
     }
     static addButtonNewCategory() {
         const categoryButton = document.createElement('button')
@@ -62,6 +63,7 @@ class Category {
         category._thisButton = this;
         main.appendChild(category.render())
         this.parentElement.remove()
+        category._createDate = new Date().getTime()
     }
 
     render() {
@@ -94,7 +96,7 @@ class Category {
     showDeletePopup() {
         const popup = document.createElement('div')
         popup.className = 'delete-popup'
-        popup.innerHTML = `Czy na pewno chcesz usunąć kategorię <span class="delete-popup-category-name">${this._categoryName}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`
+        popup.innerHTML = `Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this._categoryName}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`
         main.appendChild(popup)
         popup.children[1].addEventListener('click', () => {
             categoryList.splice(this._index, 1)

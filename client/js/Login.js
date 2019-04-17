@@ -43,7 +43,6 @@ class Login {
         return this._form;
     }
 
-
     _changeToRegister() {
         if (!this._isNew) {
             this._isNew = true;
@@ -74,7 +73,6 @@ class Login {
             this._form.insertBefore(name, this._email.nextElementSibling);
             this._form.insertBefore(reEmail, this._email.nextElementSibling);
             this._form.insertBefore(rePassword, this._password.nextElementSibling);
-
 
             this._submit.value = this._text.reSubmit;
         } else {

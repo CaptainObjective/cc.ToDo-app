@@ -1,6 +1,4 @@
-const sql = require('mssql');
-
- const config = {
+const config = {
      user: 'todoapp_admin',
      password: process.env.DB_PASSWD,
      server: 'coderscamp.database.windows.net',
@@ -10,6 +8,4 @@ const sql = require('mssql');
      }
  };
 
-const pool = new sql.ConnectionPool(config);
-
-module.exports = pool;
+module.exports = config;

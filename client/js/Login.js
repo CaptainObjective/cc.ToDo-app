@@ -112,6 +112,7 @@ class Login
             if(!this._flags.isNewMemberChecked)
             {
                 this._flags.isNewMemberChecked = true;
+                this._lostPassword.hidden = true;
                 [...this._form.getElementsByClassName("login-added")].forEach(el => el.hidden = false);
                 [...this._form.getElementsByClassName("login-error")].filter(el => el.nextElementSibling.classList.contains("login-added")).forEach(el => el.hidden = false);
                 this._submit.value = this._text.reSubmit;
@@ -308,7 +309,7 @@ class Login
     _verifyInputs() {
         this._flags.filledInputs = ![...this._form.getElementsByClassName("login-input")].some((el) => el.value === "");
         this._flags.correctEmail = !!this._email.value.match(/.+@.+\..+/gi);
-        this._flags.correctPassword = !!(this._password && (this._password.value && (this._password.value.length >= 8 && !!this._password.value.match(/.*[0-9].*/gi) && !!this._password.value.match(/([!-/]|[:-@]|[\[-`]|[{-~])/gi) && !!this._password.value.match(/[A-Z]/g))));
+        this._flags.correctPassword = !!(this._password.value && (this._password.value && (this._password.value.length >= 8 && !!this._password.value.match(/.*[0-9].*/gi) && !!this._password.value.match(/([!-/]|[:-@]|[\[-`]|[{-~])/gi) && !!this._password.value.match(/[A-Z]/g))));
         if (this._flags.isNewMemberChecked) {
             this._flags.filledInputs = ![...this._form.getElementsByClassName("login-input")].some((el) => el.value === "");
             this._flags.sameEmails = (this._email.value === this._reEmail.value);

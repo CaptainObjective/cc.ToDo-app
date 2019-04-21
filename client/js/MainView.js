@@ -64,16 +64,17 @@ class MainView {
 
     createNewCategory(e) {
         e.preventDefault();
-        const category = new Category(this);
-        this.categoryLists.push(category);
-        category._index = this.categoryLists.length - 1;
         const input = document.querySelector('#add-category-input');
-        category._categoryName = input.value;
-        category._categoryHeaderTitle.innerText = category._categoryName;
-        category._categoryHeaderTitle.addEventListener('click', category.showChangeNameInput.bind(category));
+        const category = new Category({
+            parent: this,
+            index: this.categoryLists.length,
+            categoryName: input.value,
+            tasksList: [],
+            createDate: new Date().getTime()
+        })
+        this.categoryLists.push(category);
         main.appendChild(category.render());
         input.parentElement.remove();
-        category._createDate = new Date().getTime();
     }
 }
 

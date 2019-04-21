@@ -1,12 +1,9 @@
 import MainView from "./MainView"
 
-class Login
-{
-    constructor()
-    {
+class Login {
+    constructor() {
         this._passLength = 8;
-        this._text = 
-        {
+        this._text = {
             email: "Adres e-mail",
             reEmail: "Potwierdź adres e-mail",
             name: "Imię",
@@ -27,8 +24,7 @@ class Login
             retrievePasswordFailure: "Nie istnieje konto przypisane do podanego adresu e-mail.",
             serverDown: "Nie można połączyć z serwerem. Spróbuj ponownie później."
         };
-        this._flags =
-        {
+        this._flags = {
             isNewMemberChecked: false,
             filledInputs: false,
             correctEmail: false,
@@ -64,18 +60,20 @@ class Login
     }
 
     render() {
+        // this._form.parentElement.removeChild(this._form);
+        const mainView = new MainView();
+        document.querySelector("#main").appendChild(mainView.render());
         return this._form;
     }
 
-    _clearAllInputs()
-    {
-        [...this._form.querySelectorAll("*")].forEach(el => {if (el.value && (el.classList.contains("login-input"))) el.value = ""});
+    _clearAllInputs() {
+        [...this._form.querySelectorAll("*")].forEach(el => {
+            if (el.value && (el.classList.contains("login-input"))) el.value = ""
+        });
     }
 
-    _changeToRegister() 
-    {
-        if (!this._flags.isRegisterCreated) 
-        {
+    _changeToRegister() {
+        if (!this._flags.isRegisterCreated) {
             this._flags.isNewMemberChecked = true;
             this._flags.isRegisterCreated = true;
             this._lostPassword.hidden = true;
@@ -109,18 +107,14 @@ class Login
             this._form.insertBefore(rePassword, this._password.nextElementSibling);
 
             this._submit.value = this._text.reSubmit;
-        }
-        else {
-            if(!this._flags.isNewMemberChecked)
-            {
+        } else {
+            if (!this._flags.isNewMemberChecked) {
                 this._flags.isNewMemberChecked = true;
                 this._lostPassword.hidden = true;
                 [...this._form.getElementsByClassName("login-added")].forEach(el => el.hidden = false);
                 [...this._form.getElementsByClassName("login-error")].filter(el => el.nextElementSibling.classList.contains("login-added")).forEach(el => el.hidden = false);
                 this._submit.value = this._text.reSubmit;
-            }
-            else
-            {
+            } else {
                 this._flags.isNewMemberChecked = false;
                 this._lostPassword.hidden = false;
                 [...this._form.getElementsByClassName("login-added")].forEach(el => el.hidden = true);
@@ -131,26 +125,22 @@ class Login
         this._verifyInputs();
     }
 
-    _confirmRetrieviengPassword()
-    {
-        if (!this._email.value || !this._flags.correctEmail)
-        {
+    _confirmRetrieviengPassword() {
+        if (!this._email.value || !this._flags.correctEmail) {
             this._backArrow.addEventListener("click", this._makeBackArrowListener());
             this._backArrow.hidden = false;
             this._newMember.parentElement.hidden = true;
             this._password.hidden = true;
             this._submit.hidden = true;
 
-            [...this._form.getElementsByClassName("login-error")].forEach((el) => 
-            {
+            [...this._form.getElementsByClassName("login-error")].forEach((el) => {
                 if (el.nextElementSibling !== this._email) el.hidden = true;
             });
             this._inputWrong(this._email);
             this._backArrow.hidden = false;
-        }
-        else if (confirm(this._text.lostPasswordSure)) this._retrievePassword();
+        } else if (confirm(this._text.lostPasswordSure)) this._retrievePassword();
     }
-        
+
     _inputGood(input) {
         input.classList.remove("login-input-wrong");
         input.classList.add("login-input-good");
@@ -169,45 +159,39 @@ class Login
         errorText.classList.add("login-error");
         if (!input.value) {
             errorText.innerText = "Pole wymagane";
-        }
-        else {
+        } else {
             if (altMessage === undefined) errorText.innerText = this._text[`${input.id}-error${!(input === this._password && input.value.length < this._passLength)?"":"-short"}`];
             else errorText.innerText = altMessage;
         }
         this._form.insertBefore(errorText, input);
     }
 
-    _neutralizeAllInputs()
-    {
+    _neutralizeAllInputs() {
         [...this._form.getElementsByClassName("login-input-good")].forEach(el => el.classList.remove("login-input-good"));
         [...this._form.getElementsByClassName("login-input-wrong")].forEach(el => el.classList.remove("login-input-wrong"));
     }
 
-    async _retrievePassword()
-    {
+    async _retrievePassword() {
         this._showMessage(this._text.serverDown);
         const requestBody = {};
         requestBody.email = this._email.value;
         const apiUrl = "api/rePass";
-        try
-        {
-            const response = await fetch(apiUrl,
-                {
-                    method: "post",
-                    headers: { "Content-type": "application/json; charset=UTF-8" },
-                    body: JSON.stringify(requestBody)
-                });
+        try {
+            const response = await fetch(apiUrl, {
+                method: "post",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                },
+                body: JSON.stringify(requestBody)
+            });
             if (response.status !== 200) throw response;
             this._showMessage("success");
-        }
-        catch(error)
-        {
+        } catch (error) {
             console.log(error);
         }
     }
 
-    _showMessage(messageText)
-    {
+    _showMessage(messageText) {
         const message = document.createElement('p');
         message.classList.add("login-text");
         message.innerText = messageText;
@@ -217,12 +201,10 @@ class Login
         this._form.insertBefore(message, this._form[0]);
     }
 
-    _makeBackArrowListener()
-    {
+    _makeBackArrowListener() {
         const addedList = [...arguments];
         const showedList = [...this._form.querySelectorAll("*")].filter(el => !el.hidden && el !== this._backArrow);
-        const listener = function(event)
-        {
+        const listener = function(event) {
             showedList.forEach(el => el.hidden = false);
             if (addedList.length > 0) addedList.forEach(el => el.parentElement.removeChild(el));
             event.currentTarget.removeEventListener("click", listener);
@@ -238,30 +220,29 @@ class Login
         let apiUrl;
         if (!this._flags.isNewMemberChecked) {
             apiUrl = "api/auth";
-        }
-        else {
+        } else {
             apiUrl = "api/register"
         }
         requestBody.email = this._email.value;
         requestBody.password = this._password.value;
         try {
-            const response = await fetch(apiUrl,
-                {
-                    method: "post",
-                    headers: { "Content-type": "application/json; charset=UTF-8" },
-                    body: JSON.stringify(requestBody)
-                });
+            const response = await fetch(apiUrl, {
+                method: "post",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                },
+                body: JSON.stringify(requestBody)
+            });
             // if (response.status !== 200) throw response;
-            this._form.parentElement.removeChild(this._form);
-            const mainView = new MainView();
-            document.querySelector("#main").appendChild(mainView.render());
+            // this._form.parentElement.removeChild(this._form);
+            // const mainView = new MainView();
+            // document.querySelector("#main").appendChild(mainView.render());
             //obsługa logowania
-        }
-        catch (error) {
+        } catch (error) {
             this._showMessage(this._text.serverDown);
             this._clearAllInputs();
             this._neutralizeAllInputs();
-            
+
             console.log(error);
             // obsługa błędu w zależności od rodzaju błędu
         }
@@ -297,15 +278,13 @@ class Login
                 if (this._flags.samePasswords) this._inputGood(this._rePassword);
                 else this._inputWrong(this._rePassword);
             }
-        }
-        else if (input === this._reEmail) {
+        } else if (input === this._reEmail) {
             if (this._flags.sameEmails) this._inputGood(input);
             else this._inputWrong(input);
         } else if (input === this._rePassword) {
             if (this._flags.samePasswords) this._inputGood(input);
             else this._inputWrong(input);
-        }
-        else this._inputGood(input);
+        } else this._inputGood(input);
     }
 
     _verifyInputs() {
@@ -316,8 +295,7 @@ class Login
             this._flags.filledInputs = ![...this._form.getElementsByClassName("login-input")].some((el) => el.value === "");
             this._flags.sameEmails = (this._email.value === this._reEmail.value);
             this._flags.samePasswords = (this._password.value === this._rePassword.value);
-        }
-        else {
+        } else {
             this._flags.filledInputs = ![...this._form.getElementsByClassName("login-input")].filter(el => !el.classList.contains("login-added")).some((el) => el.value === "");
             this._flags.sameEmails = this._flags.samePasswords = true;
         }

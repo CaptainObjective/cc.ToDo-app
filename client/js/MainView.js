@@ -2,18 +2,15 @@ import Category from './Category'
 
 class MainView {
     constructor(user) {
-        if (!user)
-        {
+        if (!user) {
             this.categoryLists = [];
             this.archivedLists = [];
-        }
-        else
-        {
+        } else {
             // tutaj tworzenie kategorii na podstawie danych z serwera
         }
         this.container = document.createElement("div");
         this.container.classList.add("main-view");
-        
+
         this.categoryButton = this._addButtonNewCategory();
         this.container.appendChild(this.categoryButton);
         this.categoryButton.addEventListener('click', this.showInputName.bind(this));
@@ -44,12 +41,22 @@ class MainView {
         const inputButton = document.createElement('button')
         inputButton.classList.add('button-category-name')
         inputButton.innerText = 'Dodaj'
+        const deleteFormButton = document.createElement('div')
+        deleteFormButton.innerHTML = '<i class="fas fa-times"></i>'
         formName.appendChild(inputName)
         formName.appendChild(inputButton)
+        formName.appendChild(deleteFormButton)
+        deleteFormButton.addEventListener('click', function() {
+            if (this.parentElement.parentElement === document.querySelector('.category-header')) {
+                this.parentElement.parentElement.firstElementChild.hidden = false;
+            }
+            this.parentElement.remove()
+        })
         return formName
     }
 
     showInputName() {
+        if (document.getElementById('add-category-input')) return
         const formName = MainView.createInputName();
         main.appendChild(formName);
         formName.children[1].addEventListener('click', this.createNewCategory.bind(this));
@@ -57,7 +64,7 @@ class MainView {
 
     createNewCategory(e) {
         e.preventDefault();
-        const category = new Category();
+        const category = new Category(this);
         this.categoryLists.push(category);
         category._index = this.categoryLists.length - 1;
         const input = document.querySelector('#add-category-input');
@@ -68,7 +75,6 @@ class MainView {
         input.parentElement.remove();
         category._createDate = new Date().getTime();
     }
-
 }
 
 export default MainView;

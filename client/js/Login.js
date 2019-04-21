@@ -253,7 +253,8 @@ class Login
                 });
             // if (response.status !== 200) throw response;
             this._form.parentElement.removeChild(this._form);
-            new MainView(response);
+            const mainView = new MainView();
+            document.querySelector("#main").appendChild(mainView.render());
             //obsługa logowania
         }
         catch (error) {

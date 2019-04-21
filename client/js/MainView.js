@@ -1,17 +1,33 @@
 import Category from './Category'
 
 class MainView {
-    constructor() {
-        this.categoryLists = []
-        this.archivedLists = []
-        console.log('Działa');
+    constructor(user) {
+        if (!user)
+        {
+            this.categoryLists = [];
+            this.archivedLists = [];
+        }
+        else
+        {
+            // tutaj tworzenie kategorii na podstawie danych z serwera
+        }
+        this.container = document.createElement("div");
+        this.container.classList.add("main-view");
+        
+        this.categoryButton = this._addButtonNewCategory();
+        this.container.appendChild(this.categoryButton);
+        this.categoryButton.addEventListener('click', this.showInputName.bind(this));
+
+        // this.burger = new MyBurger();
+
+        // this.searhBar = new searchBar()
 
     }
     render() {
-        //Ta metoda zwraca html który ma się dodać do strony
+        return this.container;
     }
 
-    addButtonNewCategory() {
+    _addButtonNewCategory() {
         const categoryButton = document.createElement('button')
         categoryButton.classList.add('category-button')
         categoryButton.innerText = '+'

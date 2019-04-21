@@ -9,10 +9,6 @@ export const main = document.querySelector('#main');
 const login = new Login();
 main.appendChild(login.render());
 
-// new MainView()
-const mainView = new MainView();
-const addCatButton = mainView.addButtonNewCategory();
-main.appendChild(addCatButton);
 
-addCatButton.addEventListener('click', mainView.showInputName.bind(mainView))
+
 //Tu leci główny kod Apki

@@ -1,8 +1,13 @@
 @import 'variables.scss';
+@import 'mixins.scss';
 
 body {
     // background-image:url("../assets/test.jpg");
     background: $primary;
+}
+
+button {
+    cursor: pointer;
 }
 
 .category {
@@ -19,8 +24,11 @@ body {
         }
 
         &-delete {
-            font-size: 1.6em;
-            cursor: pointer;
+            @include icon-category();
+        }
+
+        &-copy-category {
+            @include icon-category();
         }
     }
 }

@@ -1,19 +1,18 @@
 // import MainView from './MainView'
 import '../scss/main.scss';
 import Login from './Login';
-import Category from './Category'
+import Category from './Category';
+import MainView from './MainView'
 
 export const main = document.querySelector('#main');
-
-// new MainView()
 
 const login = new Login();
 main.appendChild(login.render());
 
-
-
-const addCatButton = Category.addButtonNewCategory();
+// new MainView()
+const mainView = new MainView();
+const addCatButton = mainView.addButtonNewCategory();
 main.appendChild(addCatButton);
 
-addCatButton.addEventListener('click', Category.showInputName)
+addCatButton.addEventListener('click', mainView.showInputName.bind(mainView))
 //Tu leci główny kod Apki

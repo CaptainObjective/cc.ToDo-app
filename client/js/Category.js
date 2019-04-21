@@ -2,7 +2,10 @@ import {
     main
 } from './main'
 
-const categoryList = []
+import Task from './Task'
+
+const categoryLists = []
+const archivedLists = []
 
 class Category {
     constructor() {
@@ -20,13 +23,24 @@ class Category {
         this._categoryDeleteButton = document.createElement('div')
         this._categoryDeleteButton.classList.add('category-header-delete')
         this._categoryDeleteButton.innerHTML = `<i class="fas fa-times"></i>`
+        this._categoryCopyButton = document.createElement('div')
+        this._categoryCopyButton.classList.add('category-header-copy-category')
+        this._categoryCopyButton.innerHTML = `<i class="far fa-copy"></i>`
         this._categoryBody = document.createElement('div')
         this._categoryBody.className = 'category-body'
+        this._addNewTaskButton = document.createElement('button')
+        this._addNewTaskButton.className = "category-body-add-task";
+        this._addNewTaskButton.innerText = '+'
         this._category.appendChild(this._categoryHeader)
         this._category.appendChild(this._categoryBody)
         this._categoryHeader.appendChild(this._categoryHeaderTitle)
         this._categoryHeader.appendChild(this._categoryDeleteButton)
+        this._categoryHeader.appendChild(this._categoryCopyButton)
+        this._categoryBody.appendChild(this._addNewTaskButton)
         this._categoryDeleteButton.addEventListener('click', this.showDeletePopup.bind(this))
+        this._categoryCopyButton.addEventListener('click', this.copyCategory.bind(this))
+        this._addNewTaskButton.addEventListener('click', this.addNewTask.bind(this))
+
     }
     static addButtonNewCategory() {
         const categoryButton = document.createElement('button')
@@ -58,20 +72,19 @@ class Category {
     static createNewCategory(e) {
         e.preventDefault()
         const category = new Category();
-        categoryList.push(category)
-        category._index = categoryList.length - 1
+        categoryLists.push(category)
+        category._index = categoryLists.length - 1
         category._thisButton = this;
+        const input = category._thisButton.parentElement.firstElementChild
+        category._categoryName = input.value
+        category._categoryHeaderTitle.innerText = category._categoryName
+        category._categoryHeaderTitle.addEventListener('click', category.showChangeNameInput.bind(this))
         main.appendChild(category.render())
         this.parentElement.remove()
         category._createDate = new Date().getTime()
     }
 
     render() {
-        //Ta metoda zwraca html który ma się dodać do strony
-        const input = this._thisButton.parentElement.firstElementChild
-        this._categoryName = input.value
-        this._categoryHeaderTitle.innerText = this._categoryName
-        this._categoryHeaderTitle.addEventListener('click', this.showChangeNameInput.bind(this))
         return this._category
     }
 
@@ -99,13 +112,25 @@ class Category {
         popup.innerHTML = `Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this._categoryName}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`
         main.appendChild(popup)
         popup.children[1].addEventListener('click', () => {
-            categoryList.splice(this._index, 1)
+            archivedLists.push(categoryLists.splice(this._index, 1))
             this._category.remove()
             popup.remove()
+            console.log(archivedLists, categoryLists)
         })
         popup.lastElementChild.addEventListener('click', () => {
             popup.remove()
         })
+    }
+
+    addNewTask() {
+        const task = new Task()
+        this._tasksList.push(task)
+        console.log(this._tasksList)
+        console.log(`Powstał task numer ${this._tasksList.length}`)
+    }
+
+    copyCategory() {
+        console.log('Kopiuje taski')
     }
 }
 

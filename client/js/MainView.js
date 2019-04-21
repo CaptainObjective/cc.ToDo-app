@@ -15,6 +15,26 @@ class MainView {
         this.container.appendChild(this.categoryButton);
         this.categoryButton.addEventListener('click', this.showInputName.bind(this));
 
+        // buttony do wywoływania funkcji
+
+        this.helpfulButtonII = this._addButtonNewCategory();
+        this.container.appendChild(this.helpfulButtonII);
+        this.helpfulButtonII.innerText = "💩";
+        this.helpfulButtonII.addEventListener('click', () =>
+        {
+            this._showLists(this.archivedLists);
+        });
+
+        this.helpfulButtonII = this._addButtonNewCategory();
+        this.container.appendChild(this.helpfulButtonII);
+        this.helpfulButtonII.innerText = "🔥";
+        this.helpfulButtonII.addEventListener('click', () =>
+        {
+            this._showLists(this.categoryLists);
+        });
+
+
+
         // this.burger = new MyBurger();
 
         // this.searhBar = new searchBar()
@@ -58,7 +78,7 @@ class MainView {
     showInputName() {
         if (document.getElementById('add-category-input')) return
         const formName = MainView.createInputName();
-        main.appendChild(formName);
+        this.container.appendChild(formName);
         formName.children[1].addEventListener('click', this.createNewCategory.bind(this));
     }
 
@@ -67,14 +87,22 @@ class MainView {
         const input = document.querySelector('#add-category-input');
         const category = new Category({
             parent: this,
-            index: this.categoryLists.length,
-            categoryName: input.value,
-            tasksList: [],
-            createDate: new Date().getTime()
+            _index: this.categoryLists.length,
+            _categoryName: input.value,
+            _tasksList: [],
+            _creationDate: new Date().getTime()
         })
         this.categoryLists.push(category);
-        main.appendChild(category.render());
+        this.container.appendChild(category.render());
         input.parentElement.remove();
+    }
+
+    _showLists(lists)
+    {
+        console.log(this);
+        console.log(lists);
+        [...this.container.getElementsByClassName("category")].forEach( category => category.remove());
+        lists.forEach(list => this.container.appendChild(list.render()));
     }
 }
 

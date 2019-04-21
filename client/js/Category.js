@@ -1,14 +1,14 @@
-import {
-    main
-} from './main'
 import Task from './Task'
-import MainView from './MainView';
+import ads from './MainView';
 
 class Category {
     constructor(obiekt) {
+        this.parent = obiekt.parent;
+        delete obiekt.parent;
+
         obiekt = JSON.parse(JSON.stringify(obiekt));
         for (let i in obiekt) {
-            this[i] = obiekt[i]
+            this[i] = obiekt[i];
         }
         this._category = document.createElement('div')
         this._category.classList.add('category')
@@ -16,7 +16,7 @@ class Category {
         this._categoryHeader.classList.add('category-header')
         this._categoryHeaderTitle = document.createElement('h4')
         this._categoryHeaderTitle.classList.add('category-header-title')
-        this._categoryHeaderTitle.innerText = this.categoryName;
+        this._categoryHeaderTitle.innerText = this._categoryName;
         this._categoryDeleteButton = document.createElement('div')
         this._categoryDeleteButton.classList.add('category-header-delete')
         this._categoryDeleteButton.innerHTML = `<i class="fas fa-times"></i>`
@@ -45,9 +45,9 @@ class Category {
     }
 
     showChangeNameInput() {
-        const that = this
+        const that = this;
         this._categoryHeaderTitle.hidden = true;
-        const formName = MainView.createInputName()
+        const formName = ads.createInputName()
         formName.children[1].innerText = 'Zmień'
         this._categoryHeader.appendChild(formName)
         formName.firstElementChild.value = this._categoryName
@@ -67,9 +67,9 @@ class Category {
         const popup = document.createElement('div')
         popup.className = 'delete-popup'
         popup.innerHTML = `Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this._categoryName}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`
-        main.appendChild(popup)
+        this.parent.container.appendChild(popup)
         popup.children[1].addEventListener('click', () => {
-            this._parent.archivedLists.push(this._parent.categoryLists.splice(this._index, 1))
+            this.parent.archivedLists.push(...this.parent.categoryLists.splice(this._index, 1))
             this._category.remove()
             popup.remove()
         })

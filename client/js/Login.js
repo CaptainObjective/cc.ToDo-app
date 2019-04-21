@@ -1,3 +1,5 @@
+import MainView from "./MainView"
+
 class Login
 {
     constructor()
@@ -249,8 +251,9 @@ class Login
                     headers: { "Content-type": "application/json; charset=UTF-8" },
                     body: JSON.stringify(requestBody)
                 });
-            if (response.status !== 200) throw response;
-
+            // if (response.status !== 200) throw response;
+            this._form.parentElement.removeChild(this._form);
+            new MainView(response);
             //obsługa logowania
         }
         catch (error) {

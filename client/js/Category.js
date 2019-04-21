@@ -1,7 +1,6 @@
 import {
     main
 } from './main'
-
 import Task from './Task'
 import MainView from './MainView';
 

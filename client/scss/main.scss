@@ -1,7 +1,48 @@
 @import 'variables.scss';
+@import 'mixins.scss';
 
-body{
+body {
     // background-image:url("../assets/test.jpg");
     background: $primary;
+}
 
+button {
+    cursor: pointer;
+}
+
+.category {
+    background: #fff;
+    width: 300px;
+    height: 500px;
+
+    &-header {
+        height: 100px;
+        background-color: darken($color: $primary, $amount: 40%);
+
+        &-title {
+            cursor: pointer;
+        }
+
+        &-delete {
+            @include icon-category();
+        }
+
+        &-copy-category {
+            @include icon-category();
+        }
+    }
+}
+
+.delete-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 20vw;
+    height: 20vh;
+    background-color: darken($color: $primary, $amount: 25%);
+
+    &-category-name {
+        font-weight: bold;
+    }
 }

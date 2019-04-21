@@ -1,25 +1,22 @@
 import {
-    main,
-    mainView
+    main
 } from './main'
-
 import Task from './Task'
 import MainView from './MainView';
 
 class Category {
-    constructor(parent) {
-        this._parent = parent;
-        this._categoryName = ''
-        this._index = 0
-        this._tasksList = [];
-        this._createDate = '';
-        this._thisButton = '';
+    constructor(obiekt) {
+        obiekt = JSON.parse(JSON.stringify(obiekt));
+        for (let i in obiekt) {
+            this[i] = obiekt[i]
+        }
         this._category = document.createElement('div')
         this._category.classList.add('category')
         this._categoryHeader = document.createElement('div')
         this._categoryHeader.classList.add('category-header')
         this._categoryHeaderTitle = document.createElement('h4')
         this._categoryHeaderTitle.classList.add('category-header-title')
+        this._categoryHeaderTitle.innerText = this.categoryName;
         this._categoryDeleteButton = document.createElement('div')
         this._categoryDeleteButton.classList.add('category-header-delete')
         this._categoryDeleteButton.innerHTML = `<i class="fas fa-times"></i>`
@@ -37,6 +34,7 @@ class Category {
         this._categoryHeader.appendChild(this._categoryDeleteButton)
         this._categoryHeader.appendChild(this._categoryCopyButton)
         this._categoryBody.appendChild(this._addNewTaskButton)
+        this._categoryHeaderTitle.addEventListener('click', this.showChangeNameInput.bind(this));
         this._categoryDeleteButton.addEventListener('click', this.showDeletePopup.bind(this))
         this._categoryCopyButton.addEventListener('click', this.copyCategory.bind(this))
         this._addNewTaskButton.addEventListener('click', this.addNewTask.bind(this))

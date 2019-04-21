@@ -1,0 +1,137 @@
+import {
+    main
+} from './main'
+
+import Task from './Task'
+
+const categoryLists = []
+const archivedLists = []
+
+class Category {
+    constructor() {
+        this._categoryName = ''
+        this._index = 0
+        this._tasksList = [];
+        this._createDate = '';
+        this._thisButton = '';
+        this._category = document.createElement('div')
+        this._category.classList.add('category')
+        this._categoryHeader = document.createElement('div')
+        this._categoryHeader.classList.add('category-header')
+        this._categoryHeaderTitle = document.createElement('h4')
+        this._categoryHeaderTitle.classList.add('category-header-title')
+        this._categoryDeleteButton = document.createElement('div')
+        this._categoryDeleteButton.classList.add('category-header-delete')
+        this._categoryDeleteButton.innerHTML = `<i class="fas fa-times"></i>`
+        this._categoryCopyButton = document.createElement('div')
+        this._categoryCopyButton.classList.add('category-header-copy-category')
+        this._categoryCopyButton.innerHTML = `<i class="far fa-copy"></i>`
+        this._categoryBody = document.createElement('div')
+        this._categoryBody.className = 'category-body'
+        this._addNewTaskButton = document.createElement('button')
+        this._addNewTaskButton.className = "category-body-add-task";
+        this._addNewTaskButton.innerText = '+'
+        this._category.appendChild(this._categoryHeader)
+        this._category.appendChild(this._categoryBody)
+        this._categoryHeader.appendChild(this._categoryHeaderTitle)
+        this._categoryHeader.appendChild(this._categoryDeleteButton)
+        this._categoryHeader.appendChild(this._categoryCopyButton)
+        this._categoryBody.appendChild(this._addNewTaskButton)
+        this._categoryDeleteButton.addEventListener('click', this.showDeletePopup.bind(this))
+        this._categoryCopyButton.addEventListener('click', this.copyCategory.bind(this))
+        this._addNewTaskButton.addEventListener('click', this.addNewTask.bind(this))
+
+    }
+    static addButtonNewCategory() {
+        const categoryButton = document.createElement('button')
+        categoryButton.classList.add('category-button')
+        categoryButton.innerText = '+'
+        return categoryButton;
+    }
+
+    static createInputName() {
+        const formName = document.createElement('form')
+        formName.classList.add('form-category-name')
+        const inputName = document.createElement('input')
+        inputName.placeholder = "Wpisz nazwę kategorii."
+        inputName.classList.add('input-category-name')
+        const inputButton = document.createElement('button')
+        inputButton.classList.add('button-category-name')
+        inputButton.innerText = 'Dodaj'
+        formName.appendChild(inputName)
+        formName.appendChild(inputButton)
+        return formName
+    }
+
+    static showInputName() {
+        const formName = Category.createInputName()
+        main.appendChild(formName);
+        formName.children[1].addEventListener('click', Category.createNewCategory)
+    }
+
+    static createNewCategory(e) {
+        e.preventDefault()
+        const category = new Category();
+        categoryLists.push(category)
+        category._index = categoryLists.length - 1
+        category._thisButton = this;
+        const input = category._thisButton.parentElement.firstElementChild
+        category._categoryName = input.value
+        category._categoryHeaderTitle.innerText = category._categoryName
+        category._categoryHeaderTitle.addEventListener('click', category.showChangeNameInput.bind(this))
+        main.appendChild(category.render())
+        this.parentElement.remove()
+        category._createDate = new Date().getTime()
+    }
+
+    render() {
+        return this._category
+    }
+
+    showChangeNameInput() {
+        const that = this
+        this._categoryHeaderTitle.textContent = ''
+        const formName = Category.createInputName()
+        formName.lastElementChild.innerText = 'Zmień'
+        this._categoryHeader.appendChild(formName)
+        formName.firstElementChild.value = this._categoryName
+        formName.children[1].addEventListener('click', that.changeCategoryName.bind(this))
+    }
+
+    changeCategoryName(e) {
+        e.preventDefault()
+        const form = this._categoryHeader.lastElementChild
+        this._categoryName = form.firstElementChild.value
+        this._categoryHeaderTitle.innerText = this._categoryName
+        form.remove()
+    }
+
+    showDeletePopup() {
+        const popup = document.createElement('div')
+        popup.className = 'delete-popup'
+        popup.innerHTML = `Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this._categoryName}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`
+        main.appendChild(popup)
+        popup.children[1].addEventListener('click', () => {
+            archivedLists.push(categoryLists.splice(this._index, 1))
+            this._category.remove()
+            popup.remove()
+            console.log(archivedLists, categoryLists)
+        })
+        popup.lastElementChild.addEventListener('click', () => {
+            popup.remove()
+        })
+    }
+
+    addNewTask() {
+        const task = new Task()
+        this._tasksList.push(task)
+        console.log(this._tasksList)
+        console.log(`Powstał task numer ${this._tasksList.length}`)
+    }
+
+    copyCategory() {
+        console.log('Kopiuje taski')
+    }
+}
+
+export default Category;

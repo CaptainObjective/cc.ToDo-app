@@ -3,36 +3,43 @@ import Category from './Category'
 class MainView {
     constructor(user) {
         if (!user) {
-            this.categoryLists = [];
-            this.archivedLists = [];
+            this._categoriesList = [];
+            this._archivedCategoriesList = [];
         } else {
             // tutaj tworzenie kategorii na podstawie danych z serwera
         }
-        this.container = document.createElement("div");
-        this.container.classList.add("main-view");
+        this._container = document.createElement("div");
+        this._container.classList.add("main-view");
 
-        this.categoryButton = this._addButtonNewCategory();
-        this.container.appendChild(this.categoryButton);
-        this.categoryButton.addEventListener('click', this.showInputName.bind(this));
+        this._categoryButton = this._addButtonNewCategory();
+        this._container.appendChild(this._categoryButton);
+        this._categoryButton.addEventListener('click', this._showInputName.bind(this));
 
-        // buttony do wywoływania funkcji
+        // buttony do testowania kodu
 
-        this.helpfulButtonII = this._addButtonNewCategory();
-        this.container.appendChild(this.helpfulButtonII);
-        this.helpfulButtonII.innerText = "💩";
-        this.helpfulButtonII.addEventListener('click', () =>
+        this.helpfulButtonI = this._addButtonNewCategory();
+        this._container.appendChild(this.helpfulButtonI);
+        this.helpfulButtonI.innerText = "💩";
+        this.helpfulButtonI.addEventListener('click', () =>
         {
-            this._showLists(this.archivedLists);
+            this._showList(this._archivedCategoriesList);
         });
 
         this.helpfulButtonII = this._addButtonNewCategory();
-        this.container.appendChild(this.helpfulButtonII);
+        this._container.appendChild(this.helpfulButtonII);
         this.helpfulButtonII.innerText = "🔥";
         this.helpfulButtonII.addEventListener('click', () =>
         {
-            this._showLists(this.categoryLists);
+            this._showList(this._categoriesList);
         });
 
+        this.helpfulButtonIII = this._addButtonNewCategory();
+        this._container.appendChild(this.helpfulButtonIII);
+        this.helpfulButtonIII.innerText = "👺";
+        this.helpfulButtonIII.addEventListener('click', () =>
+        {
+            this.restoreCategory(this._archivedCategoriesList[0]);
+        });
 
 
         // this.burger = new MyBurger();
@@ -41,8 +48,11 @@ class MainView {
 
     }
     render() {
-        return this.container;
+        return this._container;
     }
+
+    get categoriesList() {return this._categoriesList;}
+    get archivedCategoriesList() {return this._archivedCategoriesList;}
 
     _addButtonNewCategory() {
         const categoryButton = document.createElement('button')
@@ -75,35 +85,60 @@ class MainView {
         return formName
     }
 
-    showInputName() {
+    _showInputName() {
         if (document.getElementById('add-category-input')) return
         const formName = MainView.createInputName();
-        this.container.appendChild(formName);
-        formName.children[1].addEventListener('click', this.createNewCategory.bind(this));
+        this._container.appendChild(formName);
+        formName.children[1].addEventListener('click', this._createNewCategory.bind(this));
     }
 
-    createNewCategory(e) {
+    _createNewCategory(e) {
         e.preventDefault();
         const input = document.querySelector('#add-category-input');
         const category = new Category({
             parent: this,
-            _index: this.categoryLists.length,
+            index: this._categoriesList.length,
             _categoryName: input.value,
             _tasksList: [],
             _creationDate: new Date().getTime()
         })
-        this.categoryLists.push(category);
-        this.container.appendChild(category.render());
+        this._categoriesList.push(category);
+        this._container.appendChild(category.render());
         input.parentElement.remove();
     }
 
-    _showLists(lists)
+    _showList(list)
     {
-        console.log(this);
-        console.log(lists);
-        [...this.container.getElementsByClassName("category")].forEach( category => category.remove());
-        lists.forEach(list => this.container.appendChild(list.render()));
+
+        [...this._container.getElementsByClassName("category")].forEach( category => category.remove());
+        list.forEach(category => this._container.appendChild(category.render()));
     }
+
+    archiveCategory(category)
+    {
+        this._archivedCategoriesList.push(...this._categoriesList.splice(category.index, 1));
+        category.render().remove();     // do ewentualnej zmiany
+        // category.archive();
+        category.index = this._archivedCategoriesList.length - 1;
+        this._categoriesList.forEach((category, index) => category.index = index);
+    }
+
+    restoreCategory(category)
+    {
+        this._categoriesList.push(...this._archivedCategoriesList.splice(category.index, 1));
+        category.render().remove();
+        // category.restore();
+        category.index = this._categoryCategoriesList.length - 1;
+        this._archivedCategoriesList.forEach((category, index) => category.index = index);
+    }
+
+    deleteCategory(category)
+    {
+        this._archivedCategoriesList.splice(category.index, 1);
+        category.render().remove();
+        this._archivedCategoriesList.forEach((category, index) => category.index = index);
+    }
+    
 }
 
 export default MainView;

@@ -70,6 +70,11 @@ class Login
     _clearAllInputs()
     {
         [...this._form.querySelectorAll("*")].forEach(el => {if (el.value && (el.classList.contains("login-input"))) el.value = ""});
+        if(this._flags.isNewMemberChecked)
+        {
+            this._backArrow.addEventListener('click', this._changeToRegister.bind(this), { once: true });
+            this._newMember.checked = false;
+        }
     }
 
     _changeToRegister() 
@@ -237,26 +242,39 @@ class Login
         const requestBody = {};
         let apiUrl;
         if (!this._flags.isNewMemberChecked) {
-            apiUrl = "api/auth";
+            apiUrl = "/login";
         }
         else {
-            apiUrl = "api/register"
+            apiUrl = "/users"
+            requestBody.name = this._name.value;
         }
         requestBody.email = this._email.value;
-        requestBody.password = this._password.value;
+        requestBody.passwd = this._password.value;
         try {
-            const response = await fetch(apiUrl,
+            const res = await fetch(apiUrl,
                 {
                     method: "post",
                     headers: { "Content-type": "application/json; charset=UTF-8" },
                     body: JSON.stringify(requestBody)
                 });
+            // const response = await res.json();
             // if (response.status !== 200) throw response;
-            this._form.parentElement.removeChild(this._form);
-            new MainView(response);
+            if(!this._flags.isNewMemberChecked)
+            {
+                this._form.parentElement.removeChild(this._form);
+                // new MainView(response.body);
+            }
+            else
+            {
+                this._showMessage(this._text.registerSuccess);
+                this._neutralizeAllInputs();
+                this._clearAllInputs();
+            }
+            
             //obsługa logowania
         }
         catch (error) {
+            console.log(error);
             this._showMessage(this._text.serverDown);
             this._clearAllInputs();
             this._neutralizeAllInputs();

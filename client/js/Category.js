@@ -1,5 +1,5 @@
 import Task from './Task'
-import ads from './MainView';
+import MainView from './MainView';
 
 class Category {
     constructor(obiekt) {
@@ -47,7 +47,7 @@ class Category {
     showChangeNameInput() {
         const that = this;
         this._categoryHeaderTitle.hidden = true;
-        const formName = ads.createInputName()
+        const formName = MainView.createInputName()
         formName.children[1].innerText = 'Zmień'
         this._categoryHeader.appendChild(formName)
         formName.firstElementChild.value = this._categoryName
@@ -67,14 +67,13 @@ class Category {
         const popup = document.createElement('div')
         popup.className = 'delete-popup'
         popup.innerHTML = `Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this._categoryName}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`
-        this.parent.container.appendChild(popup)
+        this.parent.render().appendChild(popup)
         popup.children[1].addEventListener('click', () => {
-            this.parent.archivedLists.push(...this.parent.categoryLists.splice(this._index, 1))
-            this._category.remove()
+            this.parent.archiveCategory(this);
             popup.remove()
         })
         popup.lastElementChild.addEventListener('click', () => {
-            popup.remove()
+            popup.remove();
         })
     }
 

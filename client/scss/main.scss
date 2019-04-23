@@ -19,11 +19,15 @@ button {
         height: 100px;
         background-color: darken($color: $primary, $amount: 40%);
 
-        &-title {
+        &-title .active {
             cursor: pointer;
         }
 
         &-delete {
+            @include icon-category();
+        }
+
+        &-restore {
             @include icon-category();
         }
 
@@ -46,9 +50,9 @@ button {
         font-weight: bold;
     }
 }
-// DONT MARGE THIS!!! (login-form)
-.login-form
-{
+
+// DONT MARGE THIS TO MASTER!!! (login-form)
+.login-form {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -56,11 +60,10 @@ button {
     margin: 0 auto;
     background-color: #2222aa;
     width: 50vw;
-    padding: 100px 0 ;
+    padding: 100px 0;
     border-radius: 30px;
 
-    .login-input
-    {
+    .login-input {
         font-size: 1.4rem;
         box-sizing: border-box;
         padding: 10px 10px;
@@ -68,24 +71,20 @@ button {
         outline: 0;
     }
 
-    .login-input-good
-    {
+    .login-input-good {
         border-color: #BAFF00;
     }
 
-    .login-input-wrong
-    {
+    .login-input-wrong {
         border-color: crimson;
     }
 
-    .login-error
-    {
+    .login-error {
         font-size: 1.2rem;
         color: red;
     }
 
-    .login-button
-    {
+    .login-button {
         padding: 10px;
         font-size: 1.4rem;
         background-color: lightcoral;
@@ -94,22 +93,20 @@ button {
         color: white;
     }
 
-    .login-text
-    {
+    .login-text {
         font-size: 2rem;
-        color:white;
+        color: white;
         max-width: 40vw;
         word-wrap: break-word;
         text-align: center;
     }
 
-    > *
-    {
+    >* {
         box-sizing: border-box;
         margin: 5px 0;
     }
-    .login-back-arrow
-    {
+
+    .login-back-arrow {
         position: absolute;
         left: 20px;
         top: 20px;

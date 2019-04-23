@@ -5,7 +5,8 @@ const config = {
      database: 'ToDoApp',
      options: {
          encrypt: true
-     }
+     },
+     parseJSON: true
  };
 
 module.exports = config;

@@ -90,6 +90,7 @@ class MainView {
         if (document.getElementById('add-category-input')) return
         const formName = MainView.createInputName();
         this._container.appendChild(formName);
+        formName.children[0].focus();
         formName.children[1].addEventListener('click', this._createNewCategory.bind(this));
     }
 

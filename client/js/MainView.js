@@ -20,26 +20,23 @@ class MainView {
         this.helpfulButtonI = this._addButtonNewCategory();
         this._container.appendChild(this.helpfulButtonI);
         this.helpfulButtonI.innerText = "💩";
-        this.helpfulButtonI.addEventListener('click', () =>
-        {
+        this.helpfulButtonI.addEventListener('click', () => {
             this._showList(this._archivedCategoriesList);
         });
 
         this.helpfulButtonII = this._addButtonNewCategory();
         this._container.appendChild(this.helpfulButtonII);
         this.helpfulButtonII.innerText = "🔥";
-        this.helpfulButtonII.addEventListener('click', () =>
-        {
+        this.helpfulButtonII.addEventListener('click', () => {
             this._showList(this._categoriesList);
         });
 
-        this.helpfulButtonIII = this._addButtonNewCategory();
-        this._container.appendChild(this.helpfulButtonIII);
-        this.helpfulButtonIII.innerText = "👺";
-        this.helpfulButtonIII.addEventListener('click', () =>
-        {
-            this.restoreCategory(this._archivedCategoriesList[0]);
-        });
+        // this.helpfulButtonIII = this._addButtonNewCategory();
+        // this._container.appendChild(this.helpfulButtonIII);
+        // this.helpfulButtonIII.innerText = "👺";
+        // this.helpfulButtonIII.addEventListener('click', () => {
+        //     this.restoreCategory(this._archivedCategoriesList[0]);
+        // });
 
 
         // this.burger = new MyBurger();
@@ -51,8 +48,12 @@ class MainView {
         return this._container;
     }
 
-    get categoriesList() {return this._categoriesList;}
-    get archivedCategoriesList() {return this._archivedCategoriesList;}
+    get categoriesList() {
+        return this._categoriesList;
+    }
+    get archivedCategoriesList() {
+        return this._archivedCategoriesList;
+    }
 
     _addButtonNewCategory() {
         const categoryButton = document.createElement('button')
@@ -107,38 +108,32 @@ class MainView {
         input.parentElement.remove();
     }
 
-    _showList(list)
-    {
+    _showList(list) {
 
-        [...this._container.getElementsByClassName("category")].forEach( category => category.remove());
+        [...this._container.getElementsByClassName("category")].forEach(category => category.remove());
         list.forEach(category => this._container.appendChild(category.render()));
     }
 
-    archiveCategory(category)
-    {
+    archiveCategory(category) {
         this._archivedCategoriesList.push(...this._categoriesList.splice(category.index, 1));
-        category.render().remove();     // do ewentualnej zmiany
-        // category.archive();
+        category.archive();
         category.index = this._archivedCategoriesList.length - 1;
         this._categoriesList.forEach((category, index) => category.index = index);
     }
 
-    restoreCategory(category)
-    {
+    restoreCategory(category) {
         this._categoriesList.push(...this._archivedCategoriesList.splice(category.index, 1));
-        category.render().remove();
-        // category.restore();
-        category.index = this._categoryCategoriesList.length - 1;
+        category.restore();
+        category.index = this._categoriesList.length - 1;
         this._archivedCategoriesList.forEach((category, index) => category.index = index);
     }
 
-    deleteCategory(category)
-    {
+    deleteCategory(category) {
         this._archivedCategoriesList.splice(category.index, 1);
         category.render().remove();
         this._archivedCategoriesList.forEach((category, index) => category.index = index);
     }
-    
+
 }
 
 export default MainView;

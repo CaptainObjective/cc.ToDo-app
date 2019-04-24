@@ -108,7 +108,8 @@ class MainView {
     _showInputName() {
         if (document.getElementById('add-category-input')) return;
         const formName = MainView.createInputName();
-        this._listWrapper.appendChild(formName);
+        this._container.appendChild(formName);
+        formName.children[0].focus();
         formName.children[1].addEventListener('click', this._createNewCategory.bind(this));
         formName.children[0].focus();
 

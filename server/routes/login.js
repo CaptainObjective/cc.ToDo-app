@@ -16,14 +16,17 @@ router.post('/', async (req, res, next) => {
         let user = await request
             .query(`select UserId, UserPasswd from Users where UserEmail = '${req.body.email}'`);
         user = user.recordset[0];
-        console.log(user);
         if (!user) return res.status(404).send('Invalid email or password.');
 
         const validPassword = await bcrypt.compare(req.body.passwd, user.UserPasswd);
         if (!validPassword) return res.status(400).send('Invalid email or password.');
 
         const token = jwt.sign({ id: user.UserId }, process.env.JWT_PRIVATE_KEY);
-        res.send(token);
+        
+        let userWithDetails = await request
+            .query(`EXEC SelectUserWithDetails ${user.UserId}`);
+        userWithDetails = userWithDetails.recordset[0][0];
+        res.send({ token, user: userWithDetails });
     } catch (err) { 
         next(err) 
     }
@@ -31,8 +34,8 @@ router.post('/', async (req, res, next) => {
 
 function validateLogin(req) {
     const schema = {
-        email: Joi.string().min(5).max(50).required().email(),
-        passwd: Joi.string().min(8).max(50).required()
+        email: Joi.string().required().email(),
+        passwd: Joi.string().required()
     };
     return Joi.validate(req, schema);
 }

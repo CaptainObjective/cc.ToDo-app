@@ -86,6 +86,8 @@ class MainView {
         return formName
     }
 
+    
+
     _showInputName() {
         if (document.getElementById('add-category-input')) return
         const formName = MainView.createInputName();

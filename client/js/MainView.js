@@ -1,4 +1,5 @@
 import Category from './Category'
+import Burger from './Burger';
 
 class MainView {
     constructor(user) {
@@ -9,7 +10,20 @@ class MainView {
             // tutaj tworzenie kategorii na podstawie danych z serwera
         }
 
+
         this._container = document.createElement("div");
+        this._container.setAttribute('id','testID')
+
+        //burger
+        this._burger = new Burger();
+        document.body.appendChild(this._burger.render());
+
+        this._pusher = document.createElement('div')
+        this._pusher.setAttribute('class', 'pusher');
+        this._pusher.appendChild(document.querySelector('#main'))
+        document.body.appendChild(this._pusher);
+        //
+
         this._container.innerHTML = `
             <div id="main-view-bar" class="main-view-bar"></div>
             <div id="main-view-wrapper" class="main-view-wrapper"></div>
@@ -19,7 +33,16 @@ class MainView {
         this._topBar = this._container.querySelector("#main-view-bar");
 
         this._topBar.style.backgroundColor = "#55f";
-        this._topBar.innerText = "Jestem barem;"
+        this._menuButton = document.createElement('button');
+        this._menuButton.setAttribute('class', 'ui button right floated');
+        this._menuButton.addEventListener('click', ()=> {
+            this._burger.toggle();
+        })
+
+        this._topBar.appendChild(this._menuButton);
+
+        // this._topBar.innerHTML = `
+        //     <button class="ui button right floated">Odpal burgera</button>`
 
         this._categoryButton = this._addButtonNewCategory();
         this._listWrapper.appendChild(this._categoryButton);

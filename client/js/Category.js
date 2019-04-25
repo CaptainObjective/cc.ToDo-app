@@ -2,7 +2,7 @@ import Task from './Task'
 import MainView from './MainView';
 
 class Category {
-    constructor(obiekt) {
+    constructor(obiekt = {}) {
         this.parent = obiekt.parent;
         delete obiekt.parent;
 
@@ -17,7 +17,7 @@ class Category {
         this._categoryHeader.classList.add('active');
         this._categoryHeaderTitle = document.createElement('h4');
         this._categoryHeaderTitle.classList.add('category-header-title');
-        this._categoryHeaderTitle.innerText = this._categoryName;
+        this._categoryHeaderTitle.innerText = this.name;
         this._categoryDeleteButton = document.createElement('div');
         this._categoryDeleteButton.classList.add('category-header-delete');
         this._categoryDeleteButton.innerHTML = `<i class="fas fa-times"></i>`;
@@ -52,15 +52,15 @@ class Category {
         const formName = MainView.createInputName();
         formName.children[1].innerText = 'Zmień';
         this._categoryHeader.appendChild(formName);
-        formName.firstElementChild.value = this._categoryName;
+        formName.firstElementChild.value = this.name;
         formName.children[1].addEventListener('click', that.changeCategoryName.bind(this));
     }
 
     changeCategoryName(e) {
         e.preventDefault();
         const form = this._categoryHeader.lastElementChild;
-        this._categoryName = form.firstElementChild.value;
-        this._categoryHeaderTitle.innerText = this._categoryName;
+        this.name = form.firstElementChild.value;
+        this._categoryHeaderTitle.innerText = this.name;
         this._categoryHeaderTitle.hidden = false;
         form.remove()
     }
@@ -68,7 +68,7 @@ class Category {
     showArchivePopup() {
         const popup = document.createElement('div')
         popup.className = 'delete-popup';
-        popup.innerHTML = `Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this._categoryName}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`;
+        popup.innerHTML = `Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this.name}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`;
         this.parent.render().appendChild(popup);
         popup.children[1].addEventListener('click', () => {
             this.parent.archiveCategory(this);
@@ -82,7 +82,7 @@ class Category {
     showDeletePopup() {
         const popup = document.createElement('div');
         popup.className = 'delete-popup';
-        popup.innerHTML = `Czy na pewno chcesz usunąć kategorię <span class="delete-popup-category-name">${this._categoryName}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`;
+        popup.innerHTML = `Czy na pewno chcesz usunąć kategorię <span class="delete-popup-category-name">${this.name}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`;
         this.parent.render().appendChild(popup);
         popup.children[1].addEventListener('click', () => {
             this.parent.deleteCategory(this)
@@ -96,7 +96,7 @@ class Category {
     showRestorePopup() {
         const popup = document.createElement('div');
         popup.className = 'delete-popup';
-        popup.innerHTML = `Czy na pewno chcesz przywrócić kategorię <span class="delete-popup-category-name">${this._categoryName}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`;
+        popup.innerHTML = `Czy na pewno chcesz przywrócić kategorię <span class="delete-popup-category-name">${this.name}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`;
         this.parent.render().appendChild(popup);
         popup.children[1].addEventListener('click', () => {
             this.parent.restoreCategory(this);

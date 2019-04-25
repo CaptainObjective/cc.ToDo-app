@@ -2,12 +2,8 @@ import Category from './Category'
 
 class MainView {
     constructor(user) {
-        if (!user) {
-            this._categoriesList = [];
-            this._archivedCategoriesList = [];
-        } else {
-            // tutaj tworzenie kategorii na podstawie danych z serwera
-        }
+        this._categoriesList = [];
+        this._archivedCategoriesList = [];
 
         this._container = document.createElement("div");
         this._container.innerHTML = `
@@ -26,7 +22,6 @@ class MainView {
         this._categoryButton.addEventListener('click', this._showInputName.bind(this));
 
         this._isArchivedShown = false;
-
 
         // buttony do testowania kodu
 
@@ -59,6 +54,19 @@ class MainView {
         // this.burger = new MyBurger();
 
         // this.searhBar = new searchBar()
+
+        if (!user) {
+            alert("User should be provided!");
+        } 
+        else 
+        {
+            const categories = user.categories;
+            delete user.categories;
+            for (let i in user) {
+                this[i] = user[i];
+            }
+            categories.forEach(this._createCategoryFromServer.bind(this));
+        }
 
     }
     render() {
@@ -120,7 +128,7 @@ class MainView {
         const category = new Category({
             parent: this,
             index: this._categoriesList.length,
-            _categoryName: input.value,
+            name: input.value,
             _tasksList: [],
             _creationDate: new Date().getTime()
         })
@@ -128,6 +136,23 @@ class MainView {
         this._listWrapper.appendChild(category.render());
         input.parentElement.remove();
     }
+
+    _createCategoryFromServer(catFromServer, index)
+    {
+        const category = new Category({
+            parent: this,
+            id: catFromServer.id,
+            index,
+            name: catFromServer.name,
+            _tasksList: catFromServer.tasks,
+            prev: catFromServer.prev,
+            next: catFromServer.next
+            // _creationDate: ,
+        })
+        this._categoriesList.push(category);
+        this._listWrapper.appendChild(category.render());
+    }
+
 
     _showArchivedCategories()
     {

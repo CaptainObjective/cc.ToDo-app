@@ -61,7 +61,25 @@ class Login {
 
     render() {
         // this._form.parentElement.removeChild(this._form);
-        const mainView = new MainView();
+        const user =
+        {
+            userId: 1,
+            name: "user1",
+            email: "user1@gmail.com",
+            exp: 0,
+            level: 1,
+            categories:
+                [
+                    {
+                        id: 1,
+                        name: "home",
+                        prev: null,
+                        next: null,
+                        tasks: null
+                    }
+                ]
+        }
+        const mainView = new MainView(user);
         document.querySelector("#main").appendChild(mainView.render());
         return this._form;
     }

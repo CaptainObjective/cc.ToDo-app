@@ -19,7 +19,7 @@ router.post('/', auth, async (req, res, next) => {
             JOIN Tasks ON Categories.CategoryId = Tasks.TaskCategoryId
             WHERE Tasks.TaskId = '${req.body.taskId}'`);
         if (!userId.recordset[0].uid || userId.recordset[0].uid != req.user.id) {
-            res.status(403).send(`Cannot create subtasks for another user`);
+            return res.status(403).send(`Cannot create subtasks for another user`);
         }
 
         let request = new sql.Request();
@@ -49,8 +49,8 @@ router.put('/:id', auth, async (req, res, next) => {
             JOIN Tasks ON Categories.CategoryId = Tasks.TaskCategoryId
             JOIN Subtasks ON Tasks.TaskId = Subtasks.SubtaskTaskId
             WHERE Subtasks.SubtaskId = '${req.params.id}'`);
-        if (!userId.recordset[0].uid || userId.recordset[0].uid != req.user.id) {
-            res.status(403).send(`Cannot update subtask for another user`);
+        if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
+            return res.status(403).send(`Invalid user or task non-existent.`);
         }
 
         let request = new sql.Request();
@@ -78,7 +78,7 @@ router.delete('/:id', auth, async (req, res, next) => {
             .query(`SELECT Categories.CategoryUserId AS uid FROM Categories
                             JOIN Tasks on Tasks.TaskCategoryId = Categories.CategoryId
                             WHERE Tasks.TaskId = '${req.params.id}'`);
-        if (!userId.recordset[0].uid || userId.recordset[0].uid != req.user.id) {
+        if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
             res.status(403).send(`Cannot delete another user's subtask`);
         }
         let request = new sql.Request();

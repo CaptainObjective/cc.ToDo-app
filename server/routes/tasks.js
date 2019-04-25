@@ -14,7 +14,7 @@ router.post('/', auth, async (req, res, next) => {
         let userIdRequest = new sql.Request();
         let userId = await userIdRequest
                     .query(`SELECT CategoryUserId AS uid FROM Categories WHERE CategoryId = '${req.body.categoryId}'`);
-        if (!userId.recordset[0].uid || userId.recordset[0].uid != req.user.id) {
+        if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
             res.status(403).send(`Cannot create tasks for another user`);
         }
                         
@@ -44,8 +44,20 @@ router.put('/:id', auth, async (req, res, next) => {
             .query(`SELECT Categories.CategoryUserId AS uid FROM Categories
                             JOIN Tasks on Tasks.TaskCategoryId = Categories.CategoryId
                             WHERE Tasks.TaskId = '${req.params.id}'`);
-        if (!userId.recordset[0].uid || userId.recordset[0].uid != req.user.id) {
-            res.status(403).send(`Cannot update tasks for another user`);
+        if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
+            return res.status(403).send(`Invalid user or task non-existent.`);
+        }
+
+        let isCompletedRequest = new sql.Request();
+        const isCompleted = await isCompletedRequest
+                                .query(`SELECT TaskCompleted FROM Tasks
+                                        WHERE TaskId = ${req.params.id}`);
+
+        if(!isCompleted.recordset[0].TaskCompleted && req.body.completed) {
+            let updateExp = new sql.Request();
+            await updateExp.query(`UPDATE Users
+                                    SET UserExp = UserExp + ${req.body.exp}
+                                    WHERE UserId = ${req.user.id}`);
         }
 
         let request = new sql.Request();
@@ -58,9 +70,24 @@ router.put('/:id', auth, async (req, res, next) => {
             .input('prev', sql.Int, req.body.prev || null)
             .input('next', sql.Int, req.body.next || null)
             .query(`UPDATE Tasks
-                    SET TaskCategoryId = @categoryId, TaskDesc = @desc, TaskDeadline = @deadline, TaskCompleted = @completed, TaskExp = @exp, TaskPrev = @prev, TaskNext = @next)
+                    SET TaskCategoryId = @categoryId, TaskDesc = @desc, TaskDeadline = @deadline, TaskCompleted = @completed, TaskExp = @exp, TaskPrev = @prev, TaskNext = @next
                     WHERE TaskId = '${req.params.id}'`);
-        return res.send('Task updated');
+
+        
+        let expRequest = new sql.Request();
+        let exp = await expRequest.query(`SELECT UserExp FROM Users
+                                                WHERE UserId = ${req.user.id}`);
+        exp = exp.recordset[0].UserExp;
+        let updateLevel = new sql.Request();
+        await updateLevel.query(`UPDATE Users
+                                    SET UserLevel = (SELECT MAX(LevelNum) FROM Levels WHERE LevelExp <= ${exp})
+                                    WHERE UserId = ${req.user.id}`);
+
+        let levelRequest = new sql.Request();
+        let level = await levelRequest.query(`SELECT UserLevel FROM Users
+                                            WHERE UserId = ${req.user.id}`);
+        level = level.recordset[0].UserLevel;
+        return res.send({level: level, currentExp: exp});
 
     } catch (err) {
         next(err);
@@ -106,7 +133,7 @@ function validateTaskPut(task) {
         desc: Joi.string().required(),
         deadline: Joi.date(),
         exp: Joi.number().integer().min(0).required(),
-        completed: Joi.boolean().required(),
+        completed: Joi.number().integer().required(),
         prev: Joi.number().optional(),
         next: Joi.number().optional(),
     };

@@ -1,7 +1,11 @@
 import MainView from './MainView';
+import TaskDetails from './TaskDetails';
 class Task {
     constructor(obiect) {
         this._taskName = obiect._taskName;
+        this._description = "Opis taska";
+        this._createdDate;
+        this._deadline;
         this._task = document.createElement('div');
         this._task.classList.add('task');
         this._taskHeader = document.createElement('div');
@@ -13,7 +17,7 @@ class Task {
        
         this._task.appendChild(this._taskHeader);
         this._taskHeader.appendChild(this._taskHeaderTitle);
-        this._taskHeaderTitle.onclick = this.showChangeNameInput.bind(this);
+        this._taskHeaderTitle.onclick = this.showTaskDetailsWindow.bind(this);
     }
 
     render() {
@@ -37,6 +41,12 @@ class Task {
         this._taskHeaderTitle.innerText = this._taskName;
         this._taskHeaderTitle.hidden = false;
         form.remove()
+    }
+
+    showTaskDetailsWindow(){
+        const taskDetails = new TaskDetails({parent: this, 
+            taskName: this._taskName});
+        this._task.appendChild(taskDetails.render());
     }
 }
 

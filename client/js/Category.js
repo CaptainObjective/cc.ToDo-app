@@ -10,6 +10,7 @@ class Category {
         for (let i in obiekt) {
             this[i] = obiekt[i];
         }
+        this._tasksList = [];
         this._category = document.createElement('div');
         this._category.classList.add('category');
         this._categoryHeader = document.createElement('div');
@@ -138,10 +139,43 @@ class Category {
         this._categoryDeleteButton.onclick = this.showArchivePopup.bind(this);
     }
 
+    createInputNameTask() {
+        const formName = document.createElement('form')
+        formName.classList.add('form-task-name')
+        formName.innerHTML = '<div class="newitem-title-wrapper">' +
+            '<textarea class="new-task-title-input" type="text"></textarea>' +
+            '<input class="new-task-title-submit" type ="button"  value="Add">' +
+            '</div>'
+        const deleteFormButton = document.createElement('div')
+         deleteFormButton.innerHTML = '<i class="fas fa-times"></i>'
+        this._inputTaskName = formName.querySelector(".new-task-title-input");
+        formName.appendChild(this._inputTaskName); 
+        formName.appendChild(formName.querySelector(".new-task-title-submit"))
+        formName.appendChild(deleteFormButton)
+        deleteFormButton.addEventListener('click', function () {
+            this.parentElement.remove()
+        })
+        return formName
+    }
+
     addNewTask() {
-        const task = new Task();
+        if (document.getElementById('add-task-input')) return
+        const formName = this.createInputNameTask();
+        this._category.appendChild(formName);
+        //formName.children[0].focus();
+        formName.children[2].addEventListener('click', this._createNewTask.bind(this));
+    }
+
+    _createNewTask(e) {
+        e.preventDefault();
+        const input = this._inputTaskName;
+        const task = new Task({
+            _taskName: input.value
+        })
         this._tasksList.push(task);
-        console.log(`Powstał task numer ${this._tasksList.length}`)
+        this._category.appendChild(task.render());
+        input.parentElement.remove();
+
     }
 
     copyCategory() {

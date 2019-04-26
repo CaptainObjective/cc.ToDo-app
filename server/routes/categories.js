@@ -65,7 +65,6 @@ router.delete('/:id', auth, async (req, res, next) => {
 
         await request
             .input('CategoryId', req.params.id)
-            .input('CategoryUserId', sql.Int, req.user.id)
             .execute('DeleteCategory')
         return res.send('Category deleted.');
     } catch (err) {

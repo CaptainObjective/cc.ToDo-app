@@ -3,6 +3,8 @@ const sql = require('mssql');
 const config = require('./config');
 const login = require('./routes/login');
 const users = require('./routes/users');
+const tasks = require('./routes/tasks');
+const subtasks = require('./routes/subtasks');
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -19,6 +21,8 @@ app.use(express.json());
 
 app.use('/login', login);
 app.use('/users', users);
+app.use('/tasks', tasks);
+app.use('/subtasks', subtasks);
 
 app.use((err, req, res, next) => {
     console.log(err);

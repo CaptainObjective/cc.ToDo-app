@@ -1,11 +1,22 @@
 import Category from './Category'
+import Burger from './Burger';
 
 class MainView {
     constructor(user) {
         this._categoriesList = [];
         this._archivedCategoriesList = [];
 
+
         this._container = document.createElement("div");
+        this._container.setAttribute('id','testID')
+
+        //burger
+        this._burger = new Burger();
+        document.body.appendChild(this._burger.render());
+        this._burger.fillPusher(); //pakuje cały content do pushera
+        this._burger.setExp(246,895);
+        //
+
         this._container.innerHTML = `
             <div id="main-view-bar" class="main-view-bar"></div>
             <div id="main-view-wrapper" class="main-view-wrapper"></div>
@@ -15,7 +26,10 @@ class MainView {
         this._topBar = this._container.querySelector("#main-view-bar");
 
         this._topBar.style.backgroundColor = "#55f";
-        this._topBar.innerText = "Jestem barem;"
+
+        //burger
+        this._topBar.appendChild(this._burger.menuBurgerButton);
+        //
 
         this._categoryButton = this._addButtonNewCategory();
         this._listWrapper.appendChild(this._categoryButton);
@@ -113,10 +127,13 @@ class MainView {
         return formName;
     }
 
+    
+
     _showInputName() {
         if (document.getElementById('add-category-input')) return;
         const formName = MainView.createInputName();
-        this._listWrapper.appendChild(formName);
+        this._container.appendChild(formName);
+        formName.children[0].focus();
         formName.children[1].addEventListener('click', this._createNewCategory.bind(this));
         formName.children[0].focus();
 

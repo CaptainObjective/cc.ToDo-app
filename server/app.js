@@ -3,6 +3,7 @@ const sql = require('mssql');
 const config = require('./config');
 const login = require('./routes/login');
 const users = require('./routes/users');
+const categories = require('./routes/categories');
 const tasks = require('./routes/tasks');
 const subtasks = require('./routes/subtasks');
 
@@ -21,6 +22,7 @@ app.use(express.json());
 
 app.use('/login', login);
 app.use('/users', users);
+app.use('/categories', categories);
 app.use('/tasks', tasks);
 app.use('/subtasks', subtasks);
 

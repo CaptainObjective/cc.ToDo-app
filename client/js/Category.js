@@ -18,7 +18,7 @@ class Category {
         this._categoryHeaderTitle = document.createElement('h4');
         this._categoryHeaderTitle.classList.add('category-header-title');
         this._categoryHeaderTitle.classList.add('active');
-        this._categoryHeaderTitle.innerText = this._categoryName;
+        this._categoryHeaderTitle.innerText = this.name;
         this._categoryDeleteButton = document.createElement('div');
         this._categoryDeleteButton.classList.add('category-header-delete');
         this._categoryDeleteButton.innerHTML = `<i class="fas fa-times"></i>`;

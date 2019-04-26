@@ -14,7 +14,7 @@ router.post('/', async (req, res, next) => {
         let request = new sql.Request();
 
         let user = await request
-            .query(`select UserId, UserPasswd from Users where UserEmail = '${req.body.email}'`);
+            .query(`SELECT UserId, UserPasswd FROM Users WHERE UserEmail = '${req.body.email}'`);
         user = user.recordset[0];
         if (!user) return res.status(404).send('Invalid email or password.');
 

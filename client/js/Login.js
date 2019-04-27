@@ -66,30 +66,30 @@ class Login {
 
     render() {
         // this._form.parentElement.removeChild(this._form);
-        const user = {
-            userId: 1,
-            name: "user1",
-            email: "user1@gmail.com",
-            exp: 0,
-            level: 1,
-            categories: [{
-                id: 1,
-                name: "home",
-                prev: null,
-                next: null,
-                tasks: [{
-                    taskId: 1,
-                    taskCategoryId: 1,
-                    taskName: "pierwszy",
-                    taskCreatedDate: new Date(),
-                    taskDeadlineDate: null,
-                    taskCompleted: false,
-                    taskExp: null,
-                    prev: null,
-                    taskDesc: "opis testowy"
-                }]
-            }]
-        }
+        // const user = {
+        //     userId: 1,
+        //     name: "user1",
+        //     email: "user1@gmail.com",
+        //     exp: 0,
+        //     level: 1,
+        //     categories: [{
+        //         id: 1,
+        //         name: "home",
+        //         prev: null,
+        //         next: null,
+        //         tasks: [{
+        //             taskId: 1,
+        //             taskCategoryId: 1,
+        //             taskName: "pierwszy",
+        //             taskCreatedDate: new Date(),
+        //             taskDeadlineDate: null,
+        //             taskCompleted: false,
+        //             taskExp: null,
+        //             prev: null,
+        //             taskDesc: "opis testowy"
+        //         }]
+        //     }]
+        // }
         // const mainView = new MainView(user);
         // document.querySelector("#main").appendChild(mainView.render());
         return this._form;
@@ -252,7 +252,7 @@ class Login {
         event.preventDefault();
         if (!this._submit || this._submit.disabled) return;
         const requestBody = {};
-        let apiUrl = "http://localhost:" + "3000";
+        let apiUrl = "";
         if (!this._flags.isNewMemberChecked) {
             apiUrl += "/login";
         } else {
@@ -265,7 +265,6 @@ class Login {
             let response = await fetch(apiUrl, {
                 method: "post",
                 headers: {
-                    // 'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(requestBody)
@@ -273,7 +272,7 @@ class Login {
             if (response.status !== 200) throw response;
             if (!this._flags.isNewMemberChecked) {
                 response = await response.json();
-                sessionStorage.setItem('User', JSON.stringify(response));
+                sessionStorage.setItem("x-token", response.token);
                 this._form.parentElement.removeChild(this._form);
                 const mainView = new MainView(response);
                 document.querySelector("#main").appendChild(mainView.render());
@@ -355,8 +354,31 @@ class Login {
             this._flags.sameEmails = this._flags.samePasswords = this._flags.correctName = true;
         }
         this._submitOnOff.call(this);
-
     }
+
+    async autoLogin(token)
+    {
+        try
+        {    
+            let response = await fetch("/users/me", 
+                {
+                    method: "get",
+                    headers:
+                    {
+                        "x-token": token,
+                    }
+                });
+            if (response.status !== 200) throw response;
+            response = await response.json();
+            const user = { user: response.userWithDetails};
+            const mainView = new MainView(user);
+            document.querySelector("#main").appendChild(mainView.render());
+        }
+        catch (error)
+        {
+            console.log(error);
+        }  
+    }   
 }
 
 export default Login;

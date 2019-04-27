@@ -23,13 +23,13 @@ router.post('/', auth, async (req, res, next) => {
         }
 
         let request = new sql.Request();
-        await request
-            .input('taskId', sql.Int, req.body.taskId)
-            .input('desc', sql.NVarChar(1024), req.body.desc)
-            .input('prev', sql.Int, req.body.prev || null)
-            .input('next', sql.Int, req.body.next || null)
-            .query(`INSERT INTO Subtasks VALUES(@taskId, @desc, 0, @prev, @next)`)
-        return res.send('Subtask created');
+        let id = await request
+            .input('SubtaskTaskId', sql.Int, req.body.taskId)
+            .input('SubtaskDesc', sql.NVarChar(1024), req.body.desc)
+            .output('SubtaskId', sql.Int)
+            .execute(`InsertSubtask`);
+        id = id.output.SubtaskId;
+        return res.send({ id: id });
 
     } catch (err) {
         next(err);
@@ -37,10 +37,14 @@ router.post('/', auth, async (req, res, next) => {
 })
 
 router.put('/:id', auth, async (req, res, next) => {
-    const {
-        error
-    } = validateSubtaskPut(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+    let changeOrder = !!req.query.order;
+
+    if (!changeOrder) {
+        const {
+            error
+        } = validateSubtaskPut(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+    }
 
     try {
         let userIdRequest = new sql.Request();
@@ -53,17 +57,23 @@ router.put('/:id', auth, async (req, res, next) => {
             return res.status(403).send(`Invalid user or task non-existent.`);
         }
 
+        if (changeOrder) {
+            await request
+                .input('SubtaskId', req.params.id)
+                .input('SubtaskPrev', sql.Int, req.body.prev)
+                .execute('UpdateSubtaskOrder')
+            return res.send('Subtask order changed');
+        }
+
         let request = new sql.Request();
         await request
             .input('taskId', sql.Int, req.body.taskId)
             .input('desc', sql.NVarChar(1024), req.body.desc)
-            .input('completed', sql.Bit, req.body.completed)
-            .input('prev', sql.Int, req.body.prev || null)
-            .input('next', sql.Int, req.body.next || null)
+            .input('completed', sql.Int, req.body.completed)
             .query(`UPDATE Subtasks
-                    SET SubtaskTaskId = @taskId, SubtaskDesc = @desc, SubtaskCompleted = @completed, SubtaskPrev = @prev, SubtaskNext = @next)
+                    SET SubtaskTaskId = @taskId, SubtaskDesc = @desc, SubtaskCompleted = @completed
                     WHERE SubtaskId = '${req.params.id}'`);
-        return res.send('Subtask updated');
+        return res.send({id: req.params.id});
 
     } catch (err) {
         next(err);
@@ -73,19 +83,22 @@ router.put('/:id', auth, async (req, res, next) => {
 router.delete('/:id', auth, async (req, res, next) => {
 
     try {
-        let userIdRequest = new sql.Request();
+        /*let userIdRequest = new sql.Request();
         const userId = await userIdRequest
             .query(`SELECT Categories.CategoryUserId AS uid FROM Categories
-                            JOIN Tasks on Tasks.TaskCategoryId = Categories.CategoryId
-                            WHERE Tasks.TaskId = '${req.params.id}'`);
+                    JOIN Tasks on Tasks.TaskCategoryId = Categories.CategoryId
+                    WHERE Tasks.TaskId = '${req.params.id}'`);
         if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
             res.status(403).send(`Cannot delete another user's subtask`);
-        }
+        }*/
         let request = new sql.Request();
 
         await request
-            .query(`DELETE FROM Subtasks WHERE SubtaskId = '${req.params.id}'`)
-        return res.send('Subtask deleted');
+            .input('SubtaskId', req.params.id)
+            .execute('DeleteSubtask');
+        return res.send({
+            id: req.params.id
+        });
     } catch (err) {
         next(err)
     }
@@ -95,8 +108,6 @@ function validateSubtask(subtask) {
     const schema = {
         taskId: Joi.number().integer().required(),
         desc: Joi.string().required(),
-        prev: Joi.number().optional(),
-        next: Joi.number().optional(),
     };
     return Joi.validate(subtask, schema);
 }
@@ -105,9 +116,8 @@ function validateSubtaskPut(subtask) {
     const schema = {
         taskId: Joi.number().integer().required(),
         desc: Joi.string().required(),
-        completed: Joi.boolean().required(),
+        completed: Joi.number().required(),
         prev: Joi.number().optional(),
-        next: Joi.number().optional(),
     };
     return Joi.validate(subtask, schema);
 }

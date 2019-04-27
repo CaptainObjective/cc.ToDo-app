@@ -72,7 +72,7 @@ class TaskDetails {
         this._taskExpCheckBox1.name ="exp";
         this._taskExpCheckBox1.checked ="true";
         this._taskExpCheckBox1Text = document.createElement('p');
-        this._taskExpCheckBox1Text.innerText = "Słaby";
+        this._taskExpCheckBox1Text.innerText = "Łatwy";
 
         this._taskExpCheckBox2Area = document.createElement('div');
         this._taskExpCheckBox2 = document.createElement("input");

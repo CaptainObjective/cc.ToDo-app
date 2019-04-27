@@ -1,11 +1,10 @@
 import MainView from './MainView';
 import TaskDetails from './TaskDetails';
 class Task {
-    constructor(obiect) {
-        this._taskName = obiect._taskName;
-        this._description = "Opis taska";
-        this._createdDate;
-        this._deadline;
+    constructor(obiect = {}) {
+        this._parent = obiect.taskParent;
+        this._taskName = obiect.taskName;
+        this._createdDate = obiect.createdDate;
         this._task = document.createElement('div');
         this._task.classList.add('task');
         this._taskHeader = document.createElement('div');
@@ -44,8 +43,8 @@ class Task {
     }
 
     showTaskDetailsWindow(){
-        const taskDetails = new TaskDetails({parent: this, 
-            taskName: this._taskName});
+        const taskDetails = new TaskDetails({parent: this,
+        taskName: this._taskName});
         this._task.appendChild(taskDetails.render());
     }
 }

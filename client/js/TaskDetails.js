@@ -10,21 +10,24 @@ class TaskDetails {
         this._taskDetailsWindow.classList.add('taskDetailWindow');
         this._taskDetailTitle = document.createElement('form'); //zmiana nazwy taska
         this._taskDetailTitle.classList.add('form-task-title');
+        this._taskTitleHeader = document.createElement("h5");
+        this._taskTitleHeader.classList.add("created-date-header");
+        this._taskTitleHeader.innerText = "Tytuł taska"
         this._inputTitle = document.createElement('input')
-        this._inputTitle.placeholder = obiekt.taskName
+        this._inputTitle.placeholder = obiekt.taskName;
         this._inputTitle.classList.add('input-task-title')
         this._inputButton = document.createElement('button')
         this._inputButton.classList.add('button-task-title')
         this._inputButton.innerText = "Zmień tytuł taska"
         this._taskDescription = document.createElement('form'); //dodanie opisu taska
-        this._taskDescription.classList.add('form-task-description');
-        this._inputDescription = document.createElement('input')
-        this._inputDescription.placeholder = "Dodaj opis taska";
-        this._inputDescription.value = this.parent._description;
-        this._inputDescription.classList.add('input-task-description')
-        this._inputDescriptionButton = document.createElement('button')
-        this._inputDescriptionButton.classList.add('button-task-description')
-        this._inputDescriptionButton.innerText = 'Dodaj opis taska'
+        // this._taskDescription.classList.add('form-task-description');
+        // this._inputDescription = document.createElement('input')
+        // this._inputDescription.placeholder = "Dodaj opis taska";
+        // this._inputDescription.value = this.parent._description;
+        // this._inputDescription.classList.add('input-task-description')
+        // this._inputDescriptionButton = document.createElement('button')
+        // this._inputDescriptionButton.classList.add('button-task-description')
+        // this._inputDescriptionButton.innerText = 'Dodaj opis taska'
         this._closeButton = document.createElement('div'); //button zamykający
         this._closeButton.classList.add('taskDetail-close-window');
         this._closeButton.innerHTML = `<i class="fas fa-times"></i>`;
@@ -57,11 +60,12 @@ class TaskDetails {
         this._taskDetailsContainer.appendChild(this._taskDetailsWindow);
         this._taskDetailsWindow.appendChild(this._closeButton);
         this._taskDetailsWindow.appendChild(this._taskDetailTitle);
+        this._taskDetailTitle.appendChild(this._taskTitleHeader);
         this._taskDetailTitle.appendChild(this._inputTitle);
         this._taskDetailTitle.appendChild(this._inputButton);
         this._taskDetailsWindow.appendChild(this._taskDescription);
-        this._taskDescription.appendChild(this._inputDescription);
-        this._taskDescription.appendChild(this._inputDescriptionButton);
+        // this._taskDescription.appendChild(this._inputDescription);
+        // this._taskDescription.appendChild(this._inputDescriptionButton);
         this._taskDetailsWindow.appendChild(this._taskDates);
         this._taskDates.appendChild(this._taskCreatedDate);
         this._taskCreatedDate.appendChild(this._createdDateHeader);
@@ -74,7 +78,7 @@ class TaskDetails {
 
 
         this._inputButton.onclick = this.changeTaskName.bind(this)
-        this._inputDescriptionButton.onclick = this.changeTaskDescription.bind(this)
+        // this._inputDescriptionButton.onclick = this.changeTaskDescription.bind(this)
         this._closeButton.onclick = this.closeWindow.bind(this)
         this._createdDateButton.onclick = this.changeCreatedDate.bind(this)
         this._deadlineButton.onclick = this.changeDeadline.bind(this)
@@ -87,16 +91,16 @@ class TaskDetails {
 
     changeTaskName(e) {
         e.preventDefault();
-        const taskname = this._taskDetailTitle.firstElementChild.value;
+        const taskname = this._taskDetailTitle.children[1].value;
         this.parent._taskHeaderTitle.innerText = taskname;
         this.parent._taskName = taskname;      
     }
 
-    changeTaskDescription(e) {
-        e.preventDefault();
-        const taskdescription = this._taskDescription.firstElementChild.value;
-        this.parent._description = taskdescription;
-    }
+    // changeTaskDescription(e) {
+    //     e.preventDefault();
+    //     const taskdescription = this._taskDescription.firstElementChild.value;
+    //     this.parent._description = taskdescription;
+    // }
 
     changeCreatedDate(e) {
         e.preventDefault();

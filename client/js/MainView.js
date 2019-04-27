@@ -74,6 +74,7 @@ class MainView {
         } 
         else 
         {
+            
             const categories = user.categories;
             delete user.categories;
             for (let i in user) {
@@ -81,6 +82,7 @@ class MainView {
             }
             categories.forEach(this._createCategoryFromServer.bind(this));
         }
+        
 
     }
     render() {

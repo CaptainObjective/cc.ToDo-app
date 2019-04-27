@@ -75,7 +75,19 @@ class Login {
                         name: "home",
                         prev: null,
                         next: null,
-                        tasks: null
+                        tasks:
+                            [
+                                {
+                                    taskId: 1,
+                                    taskCategoryId: 1,
+                                    taskName: "pierwszy",
+                                    taskCreatedDate: new Date(),
+                                    taskDeadlineDate: null,
+                                    taskCompleted: null,
+                                    taskExp: null,
+                                    prev: null
+                                }
+                            ]
                     }
                 ]
         }
@@ -84,11 +96,9 @@ class Login {
         return this._form;
     }
 
-    _clearAllInputs()
-    {
-        [...this._form.querySelectorAll("*")].forEach(el => {if (el.value && (el.classList.contains("login-input"))) el.value = ""});
-        if(this._flags.isNewMemberChecked)
-        {
+    _clearAllInputs() {
+        [...this._form.querySelectorAll("*")].forEach(el => { if (el.value && (el.classList.contains("login-input"))) el.value = "" });
+        if (this._flags.isNewMemberChecked) {
             this._backArrow.addEventListener('click', this._changeToRegister.bind(this), { once: true });
             this._newMember.checked = false;
         }
@@ -182,7 +192,7 @@ class Login {
         if (!input.value) {
             errorText.innerText = "Pole wymagane";
         } else {
-            if (altMessage === undefined) errorText.innerText = this._text[`${input.id}-error${!(input === this._password && input.value.length < this._passLength)?"":"-short"}`];
+            if (altMessage === undefined) errorText.innerText = this._text[`${input.id}-error${!(input === this._password && input.value.length < this._passLength) ? "" : "-short"}`];
             else errorText.innerText = altMessage;
         }
         this._form.insertBefore(errorText, input);
@@ -226,7 +236,7 @@ class Login {
     _makeBackArrowListener() {
         const addedList = [...arguments];
         const showedList = [...this._form.querySelectorAll("*")].filter(el => !el.hidden && el !== this._backArrow);
-        const listener = function(event) {
+        const listener = function (event) {
             showedList.forEach(el => el.hidden = false);
             if (addedList.length > 0) addedList.forEach(el => el.parentElement.removeChild(el));
             event.currentTarget.removeEventListener("click", listener);
@@ -258,18 +268,16 @@ class Login {
                 });
             // const response = await res.json();
             // if (response.status !== 200) throw response;
-            if(!this._flags.isNewMemberChecked)
-            {
+            if (!this._flags.isNewMemberChecked) {
                 this._form.parentElement.removeChild(this._form);
                 // new MainView(response.body);
             }
-            else
-            {
+            else {
                 this._showMessage(this._text.registerSuccess);
                 this._neutralizeAllInputs();
                 this._clearAllInputs();
             }
-            
+
             //obsługa logowania
         }
         catch (error) {

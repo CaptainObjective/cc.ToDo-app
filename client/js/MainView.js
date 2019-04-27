@@ -8,7 +8,7 @@ class MainView {
     }) {
         this._categoriesList = [];
         this._archivedCategoriesList = [];
-        this._token = token;
+        this._token = token || sessionStorage.getItem("x-token");
 
         this._container = document.createElement("div");
         this._container.setAttribute('id', 'testID')

@@ -22,19 +22,19 @@ class Category {
         this._categoryHeaderButtonWrapper = document.createElement('div');
         this._categoryHeaderButtonWrapper.className = 'category-header-button-wrapper'
         this._categoryDeleteButton = document.createElement('div');
-        this._categoryDeleteButton.className = 'ui red button category-header-delete';
+        this._categoryDeleteButton.className = 'ui teal button category-header-delete';
         this._categoryDeleteButton.innerHTML = `<i class="fas fa-times"></i>`;
         this._categoryCopyButton = document.createElement('div');
-        this._categoryCopyButton.className = 'ui red button category-header-copy-category';
+        this._categoryCopyButton.className = 'ui teal button category-header-copy-category';
         this._categoryCopyButton.innerHTML = `<i class="far fa-copy"></i>`;
         this._categorySortButton = document.createElement('div');
-        this._categorySortButton.className = 'ui red button category-header-sort'
+        this._categorySortButton.className = 'ui teal button category-header-sort'
         this._categorySortButton.innerHTML = `<i class="fas fa-sort"></i>`;
         this._categoryRestoreButton = '';
         this._categoryBody = document.createElement('div');
         this._categoryBody.className = 'category-body';
         this._addNewTaskButton = document.createElement('button');
-        this._addNewTaskButton.className = "ui red button category-body-add-task";
+        this._addNewTaskButton.className = "ui teal button category-body-add-task";
         this._addNewTaskButton.innerHTML = '<i class="fas fa-plus"></i>';
         this._category.appendChild(this._categoryHeader);
         this._category.appendChild(this._categoryBody);
@@ -66,7 +66,7 @@ class Category {
         this._categoryHeaderTitle.hidden = true;
         const formName = MainView.createInputName();
         formName.children[1].innerText = 'Zmień';
-        this._categoryHeader.appendChild(formName);
+        this._categoryHeader.insertBefore(formName, this._categoryHeader.lastElementChild);
         formName.firstElementChild.value = this.name;
         formName.children[1].addEventListener('click', that.changeCategoryName.bind(this));
     }
@@ -84,7 +84,7 @@ class Category {
         const popup = document.createElement('div')
         popup.className = 'ui card delete-popup';
         popup.innerHTML = `<div class ="content">Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this.name}?</span> </div> <div class="extra content"><div class="ui two buttons"> <button class="ui basic green button delete-yes">Tak</button> <button class="ui basic red button detele-no">Nie</button></div></div>`;
-        this.parent.render().appendChild(popup);
+        this._categoryHeader.appendChild(popup);
         popup.children[1].addEventListener('click', () => {
             this.parent.archiveCategory(this);
             popup.remove();

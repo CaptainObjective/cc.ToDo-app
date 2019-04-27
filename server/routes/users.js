@@ -6,6 +6,24 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+router.get('/me', auth, async (req, res, next) => {
+    try {
+        let request = new sql.Request();
+
+        let user = await request
+            .query(`SELECT 1 FROM Users WHERE UserId = '${req.user.id}'`)
+        user = user.recordset[0];
+        if (!user) return res.status(404).send('User does not exist.');
+
+        let userWithDetails = await request
+            .query(`EXEC SelectUserWithDetails ${req.user.id}`);
+        userWithDetails = userWithDetails.recordset[0][0];
+        res.send({ userWithDetails });
+    } catch (err) { 
+        next(err) 
+    }
+})
+
 router.post('/', async (req, res, next) => {
     const { error } = validateRegister(req.body);
     if (error) return res.status(400).send(error.details[0].message);

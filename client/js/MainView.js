@@ -10,6 +10,8 @@ class MainView {
         this._archivedCategoriesList = [];
         this._token = token;
 
+        sessionStorage.setItem('x-token', this._token);
+
         this._container = document.createElement("div");
         this._container.setAttribute('id', 'testID')
 
@@ -66,16 +68,25 @@ class MainView {
             alert("User should be provided!");
         } else {
             const categories = user.categories || [];
+            categories.sort(MainView.sortByPrevAndId);
             delete user.categories;
             for (let i in user) {
                 this[i] = user[i];
             }
+
             categories.forEach(this._createCategoryFromServer.bind(this));
         }
 
     }
     render() {
         return this._container;
+    }
+
+    static sortByPrevAndId(a, b)
+    {
+        if (a.prev === null || a.id === b.prev) return -1;
+        if (b.prev === null || b.id === a.prev) return 1;
+        return 0;
     }
 
     get categoriesList() {
@@ -175,7 +186,6 @@ class MainView {
             index,
             name: catFromServer.name,
             _tasksList: catFromServer.tasks,
-            prev: catFromServer.prev,
             // _creationDate: ,
         })
         this._categoriesList.push(category);

@@ -13,16 +13,14 @@ module.exports = {
         extensions: ['.js']
     },
     module: {
-        rules: [
-            {
+        rules: [{
                 test: /\.(js)$/,
                 loaders: ['babel-loader'],
                 exclude: /node_modules/,
             },
             {
                 test: /\.(scss)$/,
-                use: [
-                    {
+                use: [{
                         loader: 'style-loader',
                         options: {
                             sourceMap: true

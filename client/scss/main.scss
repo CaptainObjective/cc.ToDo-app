@@ -12,13 +12,20 @@ button {
     cursor: pointer;
 }
 
+.category-wrapper {
+    display: flex;
+}
+
 .category {
+    margin: 2vw !important;
     background: #fff;
     width: 300px;
     height: 700px;
 
     &-header {
         display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
         height: 200px;
         background-color: darken($color: $primary, $amount: 40%);
 
@@ -45,7 +52,7 @@ button {
     }
 }
 
-.delete-popup{
+.delete-popup {
     position: fixed;
     top: 0;
     left: 0;

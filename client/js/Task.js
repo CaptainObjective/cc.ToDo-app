@@ -15,9 +15,14 @@ class Task {
         this._taskHeaderTitle.classList.add('task-header-title');
         this._taskHeaderTitle.classList.add('active');
         this._taskHeaderTitle.innerText = this._taskName;
+        this._taskIsCompletedCheckbox = document.createElement("input");
+        this._taskIsCompletedCheckbox.type = "checkbox";
+        this._taskIsCompletedCheckbox.checked = obiect.taskCompleted? true : false;
+
 
         this._task.appendChild(this._taskHeader);
         this._taskHeader.appendChild(this._taskHeaderTitle);
+        this._taskHeader.appendChild(this._taskIsCompletedCheckbox);
         this._taskHeaderTitle.onclick = this.showTaskDetailsWindow.bind(this);
     }
 

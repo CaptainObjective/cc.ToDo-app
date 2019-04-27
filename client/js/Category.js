@@ -181,7 +181,8 @@ class Category {
             taskParent: this,
             taskName: input.value,
             taskCreatedDate:  new Date(),
-            taskDesc: null
+            taskDesc: null,
+            taskCompleted: false
             
         })
         this._tasksList.push(task);

@@ -83,7 +83,7 @@ class Login {
                                     taskName: "pierwszy",
                                     taskCreatedDate: new Date(),
                                     taskDeadlineDate: null,
-                                    taskCompleted: null,
+                                    taskCompleted: false,
                                     taskExp: null,
                                     prev: null,
                                     taskDesc: "opis testowy"

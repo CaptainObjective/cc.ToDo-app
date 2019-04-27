@@ -88,12 +88,14 @@ class Login {
         return this._form;
     }
 
-    _clearAllInputs()
-    {
-        [...this._form.querySelectorAll("*")].forEach(el => {if (el.value && (el.classList.contains("login-input"))) el.value = ""});
-        if(this._flags.isNewMemberChecked)
-        {
-            this._backArrow.addEventListener('click', this._changeToRegister.bind(this), { once: true });
+    _clearAllInputs() {
+        [...this._form.querySelectorAll("*")].forEach(el => {
+            if (el.value && (el.classList.contains("login-input"))) el.value = ""
+        });
+        if (this._flags.isNewMemberChecked) {
+            this._backArrow.addEventListener('click', this._changeToRegister.bind(this), {
+                once: true
+            });
             this._newMember.checked = false;
         }
     }
@@ -243,54 +245,47 @@ class Login {
         event.preventDefault();
         if (!this._submit || this._submit.disabled) return;
         const requestBody = {};
-        let apiUrl = "http://localhost:"+ "3000";
+        let apiUrl = "http://localhost:" + "3000";
         if (!this._flags.isNewMemberChecked) {
             apiUrl += "/login";
-        }
-        else {
+        } else {
             apiUrl += "/users"
             requestBody.name = this._name.value;
         }
         requestBody.email = this._email.value;
         requestBody.passwd = this._password.value;
         try {
-            let response = await fetch(apiUrl,
-                {
-                    method: "post",
-                    headers: {
-                        // 'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                      },
-                    body: JSON.stringify(requestBody)
-                }
-            );
+            let response = await fetch(apiUrl, {
+                method: "post",
+                headers: {
+                    // 'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
             if (response.status !== 200) throw response;
-            if(!this._flags.isNewMemberChecked)
-            {
+            if (!this._flags.isNewMemberChecked) {
                 response = await response.json();
+                sessionStorage.setItem('User', JSON.stringify(response));
                 this._form.parentElement.removeChild(this._form);
                 const mainView = new MainView(response);
                 document.querySelector("#main").appendChild(mainView.render());
-            }
-            else
-            {
+            } else {
                 this._showMessage(this._text.registerSuccess);
                 this._neutralizeAllInputs();
                 this._clearAllInputs();
             }
-        }
-        catch (error) 
-        {
-            const { status } = error; 
-            console.log(error);     // do usunięcia przed wrzuceniem na serwer
+        } catch (error) {
+            const {
+                status
+            } = error;
+            console.log(error); // do usunięcia przed wrzuceniem na serwer
             let feedBack = "";
             if (status === undefined) feedBack = this._text.serverDown;
-            else if (!this._flags.isNewMemberChecked)
-            {
+            else if (!this._flags.isNewMemberChecked) {
                 if (status === 400 || status === 404) feedBack = this._text.loginFailure;
                 else feedBack = this._text.serverDown;
-            }
-            else if(status === 400) feedBack = this._text.registerEmailUsed;
+            } else if (status === 400) feedBack = this._text.registerEmailUsed;
             else feedBack = this._text.serverDown;
 
             this._showMessage(feedBack);
@@ -350,7 +345,7 @@ class Login {
             this._flags.correctName = !!(this._name.value.length && this._name.value.length >= this._nameLength);
         } else {
             this._flags.filledInputs = ![...this._form.getElementsByClassName("login-input")].filter(el => !el.classList.contains("login-added")).some((el) => el.value === "");
-            this._flags.sameEmails = this._flags.samePasswords = this._flags.correctName  = true;
+            this._flags.sameEmails = this._flags.samePasswords = this._flags.correctName = true;
         }
         this._submitOnOff.call(this);
 

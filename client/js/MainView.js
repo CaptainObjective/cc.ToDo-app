@@ -2,25 +2,28 @@ import Category from './Category'
 import Burger from './Burger';
 
 class MainView {
-    constructor({user, token}) {
+    constructor({
+        user,
+        token
+    }) {
         this._categoriesList = [];
         this._archivedCategoriesList = [];
         this._token = token;
 
         this._container = document.createElement("div");
-        this._container.setAttribute('id','testID')
+        this._container.setAttribute('id', 'testID')
 
         //burger
         this._burger = new Burger();
         document.body.appendChild(this._burger.render());
         this._burger.fillPusher(); //pakuje cały content do pushera
-        this._burger.setExp(246,895);
+        this._burger.setExp(246, 895);
         //
 
         this._container.innerHTML = `
             <div id="main-view-bar" class="main-view-bar"></div>
-            <div id="main-view-wrapper" class="main-view-wrapper"></div>
-        `;
+            <div id="main-view-wrapper" class="main-view-wrapper">
+            </div>`;
 
         this._listWrapper = this._container.querySelector("#main-view-wrapper");
         this._topBar = this._container.querySelector("#main-view-bar");
@@ -43,37 +46,25 @@ class MainView {
         this._listWrapper.appendChild(this.activedButton);
         this.activedButton.innerText = "Aktywne";
         this.activedButton.classList.add("login-button");
-        this.activedButton.addEventListener('click', () =>
-        {
+        this.activedButton.addEventListener('click', () => {
             this._showActiveCategories();
         });
-        
+
         this.archivedButton = this._addButtonNewCategory();
         this._listWrapper.appendChild(this.archivedButton);
         this.archivedButton.classList.add("login-button");
         this.archivedButton.innerText = "Zarchiwizowane";
-        this.archivedButton.addEventListener('click', () =>
-        {
+        this.archivedButton.addEventListener('click', () => {
             this._showArchivedCategories();
         });
 
-        // this.helpfulButtonIII = this._addButtonNewCategory();
-        // this._container.appendChild(this.helpfulButtonIII);
-        // this.helpfulButtonIII.innerText = "👺";
-        // this.helpfulButtonIII.addEventListener('click', () => {
-        //     this.restoreCategory(this._archivedCategoriesList[0]);
-        // });
-
-
-        // this.burger = new MyBurger();
-
-        // this.searhBar = new searchBar()
+        this._categoryWrapper = document.createElement('div');
+        this._categoryWrapper.className = 'category-wrapper ui four column doubling stackable grid container">';
+        this._listWrapper.appendChild(this._categoryWrapper);
 
         if (!user) {
             alert("User should be provided!");
-        } 
-        else 
-        {
+        } else {
             const categories = user.categories || [];
             delete user.categories;
             for (let i in user) {
@@ -93,15 +84,16 @@ class MainView {
     get archivedCategoriesList() {
         return this._archivedCategoriesList;
     }
-    get token()
-    {
+    get token() {
         return _token;
     }
 
     _addButtonNewCategory() {
         const categoryButton = document.createElement('button')
         categoryButton.classList.add('category-button')
-        categoryButton.innerText = '+'
+        categoryButton.classList.add('ui')
+        categoryButton.classList.add('button')
+        categoryButton.innerHTML = '<i class="fas fa-plus"></i>'
         return categoryButton;
     }
 
@@ -120,10 +112,8 @@ class MainView {
         formName.appendChild(inputName);
         formName.appendChild(inputButton);
         formName.appendChild(deleteFormButton);
-        deleteFormButton.addEventListener('click', function() 
-        {
-            if (this.parentElement.parentElement === document.querySelector('.category-header')) 
-            {
+        deleteFormButton.addEventListener('click', function() {
+            if (this.parentElement.parentElement === document.querySelector('.category-header')) {
                 this.parentElement.parentElement.firstElementChild.hidden = false;
             }
             this.parentElement.remove();
@@ -144,22 +134,23 @@ class MainView {
     async _createNewCategory(e) {
         e.preventDefault();
         const input = document.querySelector('#add-category-input');
-        const requestHeaders = { 'Content-Type': 'application/json', "x-token": this._token};
-        const requestBody = { name: input.value};
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            "x-token": this._token
+        };
+        const requestBody = {
+            name: input.value
+        };
         let categoryFromServer = {};
-        try
-        {
-            const response = await fetch("/categories",
-            {
+        try {
+            const response = await fetch("/categories", {
                 method: "post",
                 headers: requestHeaders,
                 body: JSON.stringify(requestBody)
             })
             if (response.status !== 200) throw response;
             categoryFromServer = response.json();
-        }
-        catch (error)
-        {
+        } catch (error) {
             alert("Nie udało się połączyć z serwerem!");
             return;
         }
@@ -173,12 +164,11 @@ class MainView {
             _creationDate: new Date().getTime()
         })
         this._categoriesList.push(category);
-        this._listWrapper.appendChild(category.render());
+        this._categoryWrapper.appendChild(category.render());
         input.parentElement.remove();
     }
 
-    _createCategoryFromServer(catFromServer, index)
-    {
+    _createCategoryFromServer(catFromServer, index) {
         const category = new Category({
             parent: this,
             id: catFromServer.id,
@@ -189,35 +179,31 @@ class MainView {
             // _creationDate: ,
         })
         this._categoriesList.push(category);
-        this._listWrapper.appendChild(category.render());
+        this._categoryWrapper.appendChild(category.render());
     }
 
-    _showArchivedCategories()
-    {
+    _showArchivedCategories() {
         if (this._isArchivedShown) return;
         this._isArchivedShown = true;
         this._categoryButton.hidden = true;
         this._showList(this._archivedCategoriesList);
     }
-    
-    _showActiveCategories()
-    {
+
+    _showActiveCategories() {
         if (!this._isArchivedShown) return;
         this._isArchivedShown = false;
         this._categoryButton.hidden = false;
         this._showList(this._categoriesList);
     }
 
-    _showList(list)
-    {
+    _showList(list) {
 
         [...this._listWrapper.getElementsByClassName("category")].forEach(category => category.remove());
         list.forEach(category => this._listWrapper.appendChild(category.render()));
     }
 
 
-    archiveCategory(category)
-    {
+    archiveCategory(category) {
         this._archivedCategoriesList.push(...this._categoriesList.splice(category.index, 1));
         category.archive();
         category.index = this._archivedCategoriesList.length - 1;

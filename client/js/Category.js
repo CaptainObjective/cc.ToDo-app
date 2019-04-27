@@ -12,34 +12,37 @@ class Category {
         }
         this._tasksList = [];
         this._category = document.createElement('div');
-        this._category.classList.add('category');
+        this._category.className = 'ui segment category column';
         this._categoryHeader = document.createElement('div');
-        this._categoryHeader.classList.add('category-header');
+        this._categoryHeader.className = 'ui segment category-header';
         this._categoryHeaderTitle = document.createElement('h4');
-        this._categoryHeaderTitle.classList.add('category-header-title');
+        this._categoryHeaderTitle.className = ('category-header-title ui header');
         this._categoryHeaderTitle.classList.add('active');
         this._categoryHeaderTitle.innerText = this.name;
+        this._categoryHeaderButtonWrapper = document.createElement('div');
+        this._categoryHeaderButtonWrapper.className = 'category-header-button-wrapper'
         this._categoryDeleteButton = document.createElement('div');
-        this._categoryDeleteButton.classList.add('category-header-delete');
+        this._categoryDeleteButton.className = 'ui red button category-header-delete';
         this._categoryDeleteButton.innerHTML = `<i class="fas fa-times"></i>`;
         this._categoryCopyButton = document.createElement('div');
-        this._categoryCopyButton.classList.add('category-header-copy-category');
+        this._categoryCopyButton.className = 'ui red button category-header-copy-category';
         this._categoryCopyButton.innerHTML = `<i class="far fa-copy"></i>`;
         this._categorySortButton = document.createElement('div');
-        this._categorySortButton.classList.add('category-header-sort')
+        this._categorySortButton.className = 'ui red button category-header-sort'
         this._categorySortButton.innerHTML = `<i class="fas fa-sort"></i>`;
         this._categoryRestoreButton = '';
         this._categoryBody = document.createElement('div');
         this._categoryBody.className = 'category-body';
         this._addNewTaskButton = document.createElement('button');
-        this._addNewTaskButton.className = "category-body-add-task";
-        this._addNewTaskButton.innerText = '+';
+        this._addNewTaskButton.className = "ui red button category-body-add-task";
+        this._addNewTaskButton.innerHTML = '<i class="fas fa-plus"></i>';
         this._category.appendChild(this._categoryHeader);
         this._category.appendChild(this._categoryBody);
         this._categoryHeader.appendChild(this._categoryHeaderTitle);
-        this._categoryHeader.appendChild(this._categoryDeleteButton);
-        this._categoryHeader.appendChild(this._categoryCopyButton);
-        this._categoryHeader.appendChild(this._categorySortButton);
+        this._categoryHeader.appendChild(this._categoryHeaderButtonWrapper);
+        this._categoryHeaderButtonWrapper.appendChild(this._categoryDeleteButton);
+        this._categoryHeaderButtonWrapper.appendChild(this._categoryCopyButton);
+        this._categoryHeaderButtonWrapper.appendChild(this._categorySortButton);
         this._categoryBody.appendChild(this._addNewTaskButton);
         this._categoryHeaderTitle.onclick = this.showChangeNameInput.bind(this);
         this._categoryDeleteButton.onclick = this.showArchivePopup.bind(this);
@@ -147,12 +150,12 @@ class Category {
             '<input class="new-task-title-submit" type ="button"  value="Add">' +
             '</div>'
         const deleteFormButton = document.createElement('div')
-         deleteFormButton.innerHTML = '<i class="fas fa-times"></i>'
+        deleteFormButton.innerHTML = '<i class="fas fa-times"></i>'
         this._inputTaskName = formName.querySelector(".new-task-title-input");
-        formName.appendChild(this._inputTaskName); 
+        formName.appendChild(this._inputTaskName);
         formName.appendChild(formName.querySelector(".new-task-title-submit"))
         formName.appendChild(deleteFormButton)
-        deleteFormButton.addEventListener('click', function () {
+        deleteFormButton.addEventListener('click', function() {
             this.parentElement.remove()
         })
         return formName

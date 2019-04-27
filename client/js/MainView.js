@@ -89,25 +89,23 @@ class MainView {
 
     _addButtonNewCategory() {
         const categoryButton = document.createElement('button')
-        categoryButton.classList.add('category-button')
-        categoryButton.classList.add('ui')
-        categoryButton.classList.add('button')
+        categoryButton.className = 'category-button ui button'
         categoryButton.innerHTML = '<i class="fas fa-plus"></i>'
         return categoryButton;
     }
 
     static createInputName() {
         const formName = document.createElement('form');
-        formName.classList.add('form-category-name');
+        formName.className = ' ui input focus form-category-name';
         const inputName = document.createElement('input');
         inputName.placeholder = "Wpisz nazwę kategorii.";
-        inputName.classList.add('input-category-name');
+        inputName.className = 'input-category-name';
         inputName.id = 'add-category-input';
         const inputButton = document.createElement('button');
-        inputButton.classList.add('button-category-name');
+        inputButton.className = 'mini ui button button-category-name';
         inputButton.innerText = 'Dodaj';
         const deleteFormButton = document.createElement('div');
-        deleteFormButton.innerHTML = '<i class="fas fa-times"></i>';
+        deleteFormButton.innerHTML = '<i class="close icon"></i>';
         formName.appendChild(inputName);
         formName.appendChild(inputButton);
         formName.appendChild(deleteFormButton);

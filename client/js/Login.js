@@ -65,26 +65,40 @@ class Login {
     }
 
     render() {
-        // const user =
-        // {
-        //     userId: 1,
-        //     name: "user1",
-        //     email: "user1@gmail.com",
-        //     exp: 0,
-        //     level: 1,
-        //     categories:
-        //         [
-        //             {
-        //                 id: 1,
-        //                 name: "home",
-        //                 prev: null,
-        //                 next: null,
-        //                 tasks: null
-        //             }
-        //         ]
-        // }
-        // const mainView = new MainView(user);
-        // document.querySelector("#main").appendChild(mainView.render());
+        // this._form.parentElement.removeChild(this._form);
+        const user =
+        {
+            userId: 1,
+            name: "user1",
+            email: "user1@gmail.com",
+            exp: 0,
+            level: 1,
+            categories:
+                [
+                    {
+                        id: 1,
+                        name: "home",
+                        prev: null,
+                        next: null,
+                        tasks:
+                            [
+                                {
+                                    taskId: 1,
+                                    taskCategoryId: 1,
+                                    taskName: "pierwszy",
+                                    taskCreatedDate: new Date(),
+                                    taskDeadlineDate: null,
+                                    taskCompleted: false,
+                                    taskExp: null,
+                                    prev: null,
+                                    taskDesc: "opis testowy"
+                                }
+                            ]
+                    }
+                ]
+        }
+        const mainView = new MainView(user);
+        document.querySelector("#main").appendChild(mainView.render());
         return this._form;
     }
 
@@ -188,7 +202,7 @@ class Login {
         if (!input.value) {
             errorText.innerText = "Pole wymagane";
         } else {
-            if (altMessage === undefined) errorText.innerText = this._text[`${input.id}-error${!(input === this._password && input.value.length < this._passLength)?"":"-short"}`];
+            if (altMessage === undefined) errorText.innerText = this._text[`${input.id}-error${!(input === this._password && input.value.length < this._passLength) ? "" : "-short"}`];
             else errorText.innerText = altMessage;
         }
         this._form.insertBefore(errorText, input);
@@ -232,7 +246,7 @@ class Login {
     _makeBackArrowListener() {
         const addedList = [...arguments];
         const showedList = [...this._form.querySelectorAll("*")].filter(el => !el.hidden && el !== this._backArrow);
-        const listener = function(event) {
+        const listener = function (event) {
             showedList.forEach(el => el.hidden = false);
             if (addedList.length > 0) addedList.forEach(el => el.parentElement.removeChild(el));
             event.currentTarget.removeEventListener("click", listener);

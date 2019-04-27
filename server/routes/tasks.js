@@ -90,6 +90,7 @@ router.put('/:id', auth, async (req, res, next) => {
         let exp = await expRequest.query(`SELECT UserExp FROM Users
                                                 WHERE UserId = ${req.user.id}`);
         exp = exp.recordset[0].UserExp;
+
         let updateLevel = new sql.Request();
         await updateLevel.query(`UPDATE Users
                                     SET UserLevel = (SELECT MAX(LevelNum) FROM Levels WHERE LevelExp <= ${exp})
@@ -99,7 +100,11 @@ router.put('/:id', auth, async (req, res, next) => {
         let level = await levelRequest.query(`SELECT UserLevel FROM Users
                                             WHERE UserId = ${req.user.id}`);
         level = level.recordset[0].UserLevel;
-        return res.send({level: level, currentExp: exp});
+
+        let nextLevelExpRequest = new sql.Request();
+        let nextLevelExp = await nextLevelExpRequest.query(`SELECT MIN(LevelExp) AS LevelExp FROM Levels WHERE LevelExp > ${exp}`);
+        nextLevelExp = nextLevelExp.recordset[0].LevelExp;
+        return res.send({level: level, currentExp: exp, remainingExp: nextLevelExp - exp});
 
     } catch (err) {
         next(err);

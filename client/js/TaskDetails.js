@@ -11,7 +11,7 @@ class TaskDetails {
         this._taskDetailTitle = document.createElement('form'); //zmiana nazwy taska
         this._taskDetailTitle.classList.add('form-task-title');
         this._taskTitleHeader = document.createElement("h5");
-        this._taskTitleHeader.classList.add("created-date-header");
+        this._taskTitleHeader.classList.add("title-header");
         this._taskTitleHeader.innerText = "Tytuł taska"
         this._inputTitle = document.createElement('input')
         this._inputTitle.placeholder = obiekt.taskName;
@@ -20,14 +20,17 @@ class TaskDetails {
         this._inputButton.classList.add('button-task-title')
         this._inputButton.innerText = "Zmień tytuł taska"
         this._taskDescription = document.createElement('form'); //dodanie opisu taska
-        // this._taskDescription.classList.add('form-task-description');
-        // this._inputDescription = document.createElement('input')
-        // this._inputDescription.placeholder = "Dodaj opis taska";
-        // this._inputDescription.value = this.parent._description;
-        // this._inputDescription.classList.add('input-task-description')
-        // this._inputDescriptionButton = document.createElement('button')
-        // this._inputDescriptionButton.classList.add('button-task-description')
-        // this._inputDescriptionButton.innerText = 'Dodaj opis taska'
+        this._taskDescription.classList.add('form-task-description');
+        this._taskDescriptionHeader = document.createElement("h5");
+        this._taskDescriptionHeader.classList.add("description-header");
+        this._taskDescriptionHeader.innerText = "Opis tasku"
+        this._inputDescription = document.createElement('input')
+        this._inputDescription.placeholder = "Dodaj opis taska";
+        this._inputDescription.value = this.parent._taskDesc ? this.parent._taskDesc : "";
+        this._inputDescription.classList.add('input-task-description')
+        this._inputDescriptionButton = document.createElement('button')
+        this._inputDescriptionButton.classList.add('button-task-description')
+        this._inputDescriptionButton.innerText = 'Dodaj opis taska'
         this._closeButton = document.createElement('div'); //button zamykający
         this._closeButton.classList.add('taskDetail-close-window');
         this._closeButton.innerHTML = `<i class="fas fa-times"></i>`;
@@ -56,6 +59,38 @@ class TaskDetails {
         this._deadlineButton = document.createElement("button")
         this._deadlineButton.classList.add("button-deadline-date")
         this._deadlineButton.innerText = "Prześlij"
+
+        this._taskExp = document.createElement('form');// form z task EXP
+        this._taskExp.classList.add("task-deadline-date");
+        this._taskExpHeader = document.createElement("h5");
+        this._taskExpHeader.classList.add("deadline-date-header");
+        this._taskExpHeader.innerText = "Poziom trudności"
+        
+        this._taskExpCheckBox1Area = document.createElement('div');
+        this._taskExpCheckBox1 = document.createElement("input");
+        this._taskExpCheckBox1.type ="radio";
+        this._taskExpCheckBox1.name ="exp";
+        this._taskExpCheckBox1.checked ="true";
+        this._taskExpCheckBox1Text = document.createElement('p');
+        this._taskExpCheckBox1Text.innerText = "Słaby";
+
+        this._taskExpCheckBox2Area = document.createElement('div');
+        this._taskExpCheckBox2 = document.createElement("input");
+        this._taskExpCheckBox2.type = "radio";
+        this._taskExpCheckBox2.name = "exp";
+        this._taskExpCheckBox2Text = document.createElement('p');
+        this._taskExpCheckBox2Text.innerText = "Średni";
+        
+        this._taskExpCheckBox3Area = document.createElement('div');
+        this._taskExpCheckBox3 = document.createElement("input");
+        this._taskExpCheckBox3.type = "radio";
+        this._taskExpCheckBox3.name = "exp";
+        this._taskExpCheckBox3Text = document.createElement('p');
+        this._taskExpCheckBox3Text.innerText = "Trudny";
+
+        this._checkboxButton = document.createElement("button")
+        this._checkboxButton.classList.add("button-checkbox")
+        this._checkboxButton.innerText = "Zapisz"
         
         this._taskDetailsContainer.appendChild(this._taskDetailsWindow);
         this._taskDetailsWindow.appendChild(this._closeButton);
@@ -64,8 +99,9 @@ class TaskDetails {
         this._taskDetailTitle.appendChild(this._inputTitle);
         this._taskDetailTitle.appendChild(this._inputButton);
         this._taskDetailsWindow.appendChild(this._taskDescription);
-        // this._taskDescription.appendChild(this._inputDescription);
-        // this._taskDescription.appendChild(this._inputDescriptionButton);
+        this._taskDescription.appendChild(this._taskDescriptionHeader);
+        this._taskDescription.appendChild(this._inputDescription);
+        this._taskDescription.appendChild(this._inputDescriptionButton);
         this._taskDetailsWindow.appendChild(this._taskDates);
         this._taskDates.appendChild(this._taskCreatedDate);
         this._taskCreatedDate.appendChild(this._createdDateHeader);
@@ -75,13 +111,26 @@ class TaskDetails {
         this._taskDeadline.appendChild(this._deadlineHeader);
         this._taskDeadline.appendChild(this._inputDeadline);
         this._taskDeadline.appendChild(this._deadlineButton);
-
+        this._taskDetailsWindow.appendChild(this._taskExp);
+        this._taskExp.appendChild(this._taskExpHeader);
+        this._taskExp.appendChild(this._taskExpCheckBox1Area);
+        this._taskExp.appendChild(this._taskExpCheckBox2Area);
+        this._taskExp.appendChild(this._taskExpCheckBox3Area);
+        this._taskExp.appendChild(this._checkboxButton);
+        this._taskExpCheckBox1Area.appendChild(this._taskExpCheckBox1);
+        this._taskExpCheckBox1Area.appendChild(this._taskExpCheckBox1Text);
+        this._taskExpCheckBox2Area.appendChild(this._taskExpCheckBox2);
+        this._taskExpCheckBox2Area.appendChild(this._taskExpCheckBox2Text);
+        this._taskExpCheckBox3Area.appendChild(this._taskExpCheckBox3);
+        this._taskExpCheckBox3Area.appendChild(this._taskExpCheckBox3Text);
 
         this._inputButton.onclick = this.changeTaskName.bind(this)
-        // this._inputDescriptionButton.onclick = this.changeTaskDescription.bind(this)
+        this._inputDescriptionButton.onclick = this.changeTaskDescription.bind(this)
         this._closeButton.onclick = this.closeWindow.bind(this)
         this._createdDateButton.onclick = this.changeCreatedDate.bind(this)
         this._deadlineButton.onclick = this.changeDeadline.bind(this)
+        this._checkboxButton.onclick = this.changeExp.bind(this)
+        this.checkExp()
     }
     render() {
         //console.log(this._taskDetailsContainer)
@@ -96,11 +145,11 @@ class TaskDetails {
         this.parent._taskName = taskname;      
     }
 
-    // changeTaskDescription(e) {
-    //     e.preventDefault();
-    //     const taskdescription = this._taskDescription.firstElementChild.value;
-    //     this.parent._description = taskdescription;
-    // }
+    changeTaskDescription(e) {
+        e.preventDefault();
+        const taskdescription = this._taskDescription.children[1].value;
+        this.parent._taskDesc = taskdescription;
+    }
 
     changeCreatedDate(e) {
         e.preventDefault();
@@ -114,11 +163,32 @@ class TaskDetails {
         this.parent._deadline = deadline;
     }
 
+    changeExp(e){
+        e.preventDefault();
+        const checkbox1 = this._taskExpCheckBox1Area.firstElementChild.checked;
+        const checkbox2 = this._taskExpCheckBox2Area.firstElementChild.checked;
+        const checkbox3 = this._taskExpCheckBox3Area.firstElementChild.checked;
+        if(checkbox1){
+            this.parent._taskExp = 1;
+        }
+        else if(checkbox2){
+            this.parent._taskExp = 2;
+        }
+        else{
+            this.parent._taskExp = 3;
+        }
+    }
+
+    checkExp(){
+        const exp = this.parent._taskExp; 
+        if (exp === 1) {this._taskExpCheckBox1Area.firstElementChild.checked = true};
+        if (exp === 2) {this._taskExpCheckBox2Area.firstElementChild.checked = true};
+        if (exp === 3) {this._taskExpCheckBox3Area.firstElementChild.checked = true};
+    }
+
     closeWindow(){
         this._taskDetailsContainer.remove();
     }
-
-
 
 }
 

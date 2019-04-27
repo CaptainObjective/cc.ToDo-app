@@ -85,7 +85,8 @@ class Login {
                                     taskDeadlineDate: null,
                                     taskCompleted: null,
                                     taskExp: null,
-                                    prev: null
+                                    prev: null,
+                                    taskDesc: "opis testowy"
                                 }
                             ]
                     }

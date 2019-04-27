@@ -181,6 +181,7 @@ class Category {
             taskParent: this,
             taskName: input.value,
             taskCreatedDate:  new Date(),
+            taskDesc: null
             
         })
         this._tasksList.push(task);
@@ -199,7 +200,8 @@ class Category {
             taskDeadlineDate: taskFromServer.taskDeadlineDate,
             taskCompleted: taskFromServer.taskCompleted,
             taskExp: taskFromServer.taskExp,
-            prev: taskFromServer.prev
+            prev: taskFromServer.prev,
+            taskDesc: taskFromServer.taskDesc
         })
         this._tasksList.push(task);
         this._category.appendChild(task.render());

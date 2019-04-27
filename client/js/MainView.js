@@ -2,10 +2,10 @@ import Category from './Category'
 import Burger from './Burger';
 
 class MainView {
-    constructor(user) {
+    constructor({user, token}) {
         this._categoriesList = [];
         this._archivedCategoriesList = [];
-
+        this._token = token;
 
         this._container = document.createElement("div");
         this._container.setAttribute('id','testID')
@@ -74,7 +74,7 @@ class MainView {
         } 
         else 
         {
-            const categories = user.categories;
+            const categories = user.categories || [];
             delete user.categories;
             for (let i in user) {
                 this[i] = user[i];
@@ -92,6 +92,10 @@ class MainView {
     }
     get archivedCategoriesList() {
         return this._archivedCategoriesList;
+    }
+    get token()
+    {
+        return _token;
     }
 
     _addButtonNewCategory() {
@@ -127,8 +131,6 @@ class MainView {
         return formName;
     }
 
-    
-
     _showInputName() {
         if (document.getElementById('add-category-input')) return;
         const formName = MainView.createInputName();
@@ -163,13 +165,11 @@ class MainView {
             name: catFromServer.name,
             _tasksList: catFromServer.tasks,
             prev: catFromServer.prev,
-            next: catFromServer.next
             // _creationDate: ,
         })
         this._categoriesList.push(category);
         this._listWrapper.appendChild(category.render());
     }
-
 
     _showArchivedCategories()
     {

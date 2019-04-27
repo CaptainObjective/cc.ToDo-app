@@ -20,10 +20,11 @@ class MainView {
         this._burger.setExp(246, 895);
         //
 
-        this._container.innerHTML = `<div id="main-view-bar" class="main-view-bar"></div>
+        this._container.innerHTML = `<div id="main-view-bar" class="main-view-bar"></div> <div class= "buttons-wrapper"></div>
             <div id="main-view-wrapper" class="main-view-wrapper">
             </div>`;
 
+        this._buttonsWrapper = this._container.querySelector('.buttons-wrapper');
         this._listWrapper = this._container.querySelector("#main-view-wrapper");
         this._topBar = this._container.querySelector("#main-view-bar");
 
@@ -34,7 +35,7 @@ class MainView {
         //
 
         this._categoryButton = this._addButtonNewCategory();
-        this._listWrapper.appendChild(this._categoryButton);
+        this._buttonsWrapper.appendChild(this._categoryButton);
         this._categoryButton.addEventListener('click', this._showInputName.bind(this));
 
         this._isArchivedShown = false;
@@ -42,7 +43,7 @@ class MainView {
         // buttony do testowania kodu
 
         this.activedButton = this._addButtonNewCategory();
-        this._listWrapper.appendChild(this.activedButton);
+        this._buttonsWrapper.appendChild(this.activedButton);
         this.activedButton.innerText = "Aktywne";
         this.activedButton.classList.add("login-button");
         this.activedButton.addEventListener('click', () => {
@@ -50,7 +51,7 @@ class MainView {
         });
 
         this.archivedButton = this._addButtonNewCategory();
-        this._listWrapper.appendChild(this.archivedButton);
+        this._buttonsWrapper.appendChild(this.archivedButton);
         this.archivedButton.classList.add("login-button");
         this.archivedButton.innerText = "Zarchiwizowane";
         this.archivedButton.addEventListener('click', () => {
@@ -58,7 +59,7 @@ class MainView {
         });
 
         this._categoryWrapper = document.createElement('div');
-        this._categoryWrapper.className = 'category-wrapper ui four column doubling stackable grid container">';
+        this._categoryWrapper.className = 'category-wrapper ui container">';
         this._listWrapper.appendChild(this._categoryWrapper);
 
         if (!user) {

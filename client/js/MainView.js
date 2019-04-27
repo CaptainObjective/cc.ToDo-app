@@ -76,6 +76,7 @@ class MainView {
 
             categories.forEach(this._createCategoryFromServer.bind(this));
         }
+        
 
     }
     render() {

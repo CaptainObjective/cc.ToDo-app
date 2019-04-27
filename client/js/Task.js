@@ -1,11 +1,12 @@
 import MainView from './MainView';
 import TaskDetails from './TaskDetails';
 class Task {
-    constructor(obiect) {
-        this._taskName = obiect._taskName;
-        this._description = "Opis taska";
-        this._createdDate;
-        this._deadline;
+    constructor(obiect = {}) {
+        this._parent = obiect.taskParent;
+        this._taskName = obiect.taskName;
+        this._createdDate = obiect.createdDate;
+        this._taskExp = 1;
+        this._taskDesc = obiect._taskDesc;
         this._task = document.createElement('div');
         this._task.classList.add('task');
         this._taskHeader = document.createElement('div');
@@ -14,16 +15,21 @@ class Task {
         this._taskHeaderTitle.classList.add('task-header-title');
         this._taskHeaderTitle.classList.add('active');
         this._taskHeaderTitle.innerText = this._taskName;
-       
+        this._taskIsCompletedCheckbox = document.createElement("input");
+        this._taskIsCompletedCheckbox.type = "checkbox";
+        this._taskIsCompletedCheckbox.checked = obiect.taskCompleted? true : false;
+
+
         this._task.appendChild(this._taskHeader);
         this._taskHeader.appendChild(this._taskHeaderTitle);
+        this._taskHeader.appendChild(this._taskIsCompletedCheckbox);
         this._taskHeaderTitle.onclick = this.showTaskDetailsWindow.bind(this);
     }
 
     render() {
         return this._task
     }
-    
+
     showChangeNameInput() {
         const that = this;
         this._taskHeaderTitle.hidden = true;
@@ -43,9 +49,12 @@ class Task {
         form.remove()
     }
 
-    showTaskDetailsWindow(){
-        const taskDetails = new TaskDetails({parent: this, 
-            taskName: this._taskName});
+    showTaskDetailsWindow() {
+        const taskDetails = new TaskDetails({
+            parent: this,
+            taskName: this._taskName,
+            taskDesc: this._taskDesc
+        });
         this._task.appendChild(taskDetails.render());
     }
 }

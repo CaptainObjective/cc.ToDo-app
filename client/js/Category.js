@@ -49,6 +49,14 @@ class Category {
         this._categoryCopyButton.onclick = this.copyCategory.bind(this);
         this._addNewTaskButton.onclick = this.addNewTask.bind(this);
         this._categorySortButton.onclick = this.showSortMethods.bind(this)
+
+        if (obiekt) {
+
+            const tasks = obiekt._tasksList;
+            
+            tasks.forEach(this._createTaskFromServer.bind(this));
+        }
+
     }
 
     render() {
@@ -173,12 +181,34 @@ class Category {
         e.preventDefault();
         const input = this._inputTaskName;
         const task = new Task({
-            _taskName: input.value
+            taskParent: this,
+            taskName: input.value,
+            taskCreatedDate:  new Date(),
+            taskDesc: null,
+            taskCompleted: false
+            
         })
         this._tasksList.push(task);
         this._category.appendChild(task.render());
         input.parentElement.remove();
 
+    }
+
+    _createTaskFromServer(taskFromServer) {
+        const task = new Task({
+            taskParent: this,
+            taskId: taskFromServer.taskId,
+            taskCategoryId: taskFromServer.taskCategoryId,
+            taskName: taskFromServer.taskName,
+            taskCreatedDate: taskFromServer.taskCreatedDate,
+            taskDeadlineDate: taskFromServer.taskDeadlineDate,
+            taskCompleted: taskFromServer.taskCompleted,
+            taskExp: taskFromServer.taskExp,
+            prev: taskFromServer.prev,
+            taskDesc: taskFromServer.taskDesc
+        })
+        this._tasksList.push(task);
+        this._category.appendChild(task.render());
     }
 
     copyCategory() {

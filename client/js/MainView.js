@@ -141,10 +141,31 @@ class MainView {
 
     }
 
-    _createNewCategory(e) {
+    async _createNewCategory(e) {
         e.preventDefault();
         const input = document.querySelector('#add-category-input');
+        const requestHeaders = { 'Content-Type': 'application/json', "x-token": this._token};
+        const requestBody = { name: input.value};
+        let categoryFromServer = {};
+        try
+        {
+            const response = await fetch("/categories",
+            {
+                method: "post",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
+            })
+            if (response.status !== 200) throw response;
+            categoryFromServer = response.json();
+        }
+        catch (error)
+        {
+            alert("Nie udało się połączyć z serwerem!");
+            return;
+        }
+
         const category = new Category({
+            id: categoryFromServer.id,
             parent: this,
             index: this._categoriesList.length,
             name: input.value,

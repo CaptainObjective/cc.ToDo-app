@@ -50,10 +50,8 @@ class Category {
         this._addNewTaskButton.onclick = this.addNewTask.bind(this);
         this._categorySortButton.onclick = this.showSortMethods.bind(this)
 
-        if (obiekt) {
-
+        if (obiekt._tasksList) {
             const tasks = obiekt._tasksList;
-            
             tasks.forEach(this._createTaskFromServer.bind(this));
         }
 
@@ -183,10 +181,10 @@ class Category {
         const task = new Task({
             taskParent: this,
             taskName: input.value,
-            taskCreatedDate:  new Date(),
+            taskCreatedDate: new Date(),
             taskDesc: null,
             taskCompleted: false
-            
+
         })
         this._tasksList.push(task);
         this._category.appendChild(task.render());

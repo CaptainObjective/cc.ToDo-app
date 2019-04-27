@@ -1,6 +1,5 @@
 const express = require('express');
 const sql = require('mssql');
-const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const auth = require('../middleware/auth');
 
@@ -19,15 +18,15 @@ router.post('/', auth, async (req, res, next) => {
         }
                         
         let request = new sql.Request();
-        await request
-            .input('categoryId', sql.Int, req.body.categoryId)
-            .input('desc', sql.NVarChar(1024), req.body.desc)
-            .input('deadline', sql.DateTime, new Date(req.body.deadline))
-            .input('exp', sql.Int, req.body.exp)
-            .input('prev', sql.Int, req.body.prev || null)
-            .input('next', sql.Int, req.body.next || null)
-            .query(`INSERT INTO Tasks VALUES(@categoryId, @desc, @deadline, 0, @exp, @prev, @next)`)
-        return res.send('Task created');
+        let id = await request
+            .input('TaskCategoryId', sql.Int, req.body.categoryId)
+            .input('TaskDesc', sql.NVarChar(1024), req.body.desc)
+            .input('TaskDeadline', sql.DateTime, new Date(req.body.deadline))
+            .input('TaskExp', sql.Int, req.body.exp)
+            .output('TaskId', sql.Int)
+            .execute(`InsertTask`);
+        id = id.output.TaskId
+        return res.send({id});
 
     } catch(err) {
         next(err);
@@ -35,8 +34,14 @@ router.post('/', auth, async (req, res, next) => {
 })
 
 router.put('/:id', auth, async (req, res, next) => {
-    const { error } = validateTaskPut(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+    let changeOrder = !!req.query.order;
+
+    if(!changeOrder) {
+        const {
+            error
+        } = validateTaskPut(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+    }
 
     try {
         let userIdRequest = new sql.Request();
@@ -48,12 +53,21 @@ router.put('/:id', auth, async (req, res, next) => {
             return res.status(403).send(`Invalid user or task non-existent.`);
         }
 
+        if(changeOrder) {
+            let request = new sql.Request();
+            await request
+                .input('TaskId', req.params.id)
+                .input('TaskPrev', sql.Int, req.body.prev)
+                .execute('UpdateTaskOrder')
+            return res.send('Task order changed');
+        }
+
         let isCompletedRequest = new sql.Request();
         const isCompleted = await isCompletedRequest
                                 .query(`SELECT TaskCompleted FROM Tasks
                                         WHERE TaskId = ${req.params.id}`);
 
-        if(!isCompleted.recordset[0].TaskCompleted && req.body.completed) {
+        if(Boolean(Number(!isCompleted.recordset[0].TaskCompleted && req.body.completed))) {
             let updateExp = new sql.Request();
             await updateExp.query(`UPDATE Users
                                     SET UserExp = UserExp + ${req.body.exp}
@@ -66,11 +80,9 @@ router.put('/:id', auth, async (req, res, next) => {
             .input('desc', sql.NVarChar(1024), req.body.desc)
             .input('deadline', sql.DateTime, new Date(req.body.deadline))
             .input('exp', sql.Int, req.body.exp)
-            .input('completed', sql.Bit, req.body.completed)
-            .input('prev', sql.Int, req.body.prev || null)
-            .input('next', sql.Int, req.body.next || null)
+            .input('completed', sql.Int, req.body.completed)
             .query(`UPDATE Tasks
-                    SET TaskCategoryId = @categoryId, TaskDesc = @desc, TaskDeadline = @deadline, TaskCompleted = @completed, TaskExp = @exp, TaskPrev = @prev, TaskNext = @next
+                    SET TaskCategoryId = @categoryId, TaskDesc = @desc, TaskDeadline = @deadline, TaskCompleted = @completed, TaskExp = @exp
                     WHERE TaskId = '${req.params.id}'`);
 
         
@@ -108,8 +120,9 @@ router.delete('/:id', auth, async (req, res, next) => {
         let request = new sql.Request();
 
         await request
-            .query(`DELETE FROM Tasks WHERE TaskId = '${req.params.id}'`)
-        return res.send('Task deleted.');
+            .input('TaskId', req.params.id)
+            .execute('DeleteTask');
+        return res.send({id: req.params.id});
     } catch (err) {
         next(err)
     }
@@ -120,9 +133,7 @@ function validateTask(task) {
         categoryId: Joi.number().integer().required(),
         desc: Joi.string().required(),
         deadline: Joi.date(),
-        exp: Joi.number().integer().min(0).required(),
-        prev: Joi.number().optional(),
-        next: Joi.number().optional(),
+        exp: Joi.number().integer().min(0).required()
     };
     return Joi.validate(task, schema);
 }
@@ -135,7 +146,6 @@ function validateTaskPut(task) {
         exp: Joi.number().integer().min(0).required(),
         completed: Joi.number().integer().required(),
         prev: Joi.number().optional(),
-        next: Joi.number().optional(),
     };
     return Joi.validate(task, schema);
 }

@@ -82,8 +82,8 @@ class Category {
 
     showArchivePopup() {
         const popup = document.createElement('div')
-        popup.className = 'delete-popup';
-        popup.innerHTML = `Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this.name}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`;
+        popup.className = 'ui card delete-popup';
+        popup.innerHTML = `<div class ="content">Czy na pewno chcesz zarchiwizować kategorię <span class="delete-popup-category-name">${this.name}?</span> </div> <div class="extra content"><div class="ui two buttons"> <button class="ui basic green button delete-yes">Tak</button> <button class="ui basic red button detele-no">Nie</button></div></div>`;
         this.parent.render().appendChild(popup);
         popup.children[1].addEventListener('click', () => {
             this.parent.archiveCategory(this);
@@ -96,8 +96,8 @@ class Category {
 
     showDeletePopup() {
         const popup = document.createElement('div');
-        popup.className = 'delete-popup';
-        popup.innerHTML = `Czy na pewno chcesz usunąć kategorię <span class="delete-popup-category-name">${this.name}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`;
+        popup.className = 'ui card delete-popup';
+        popup.innerHTML = `<div class ="content">Czy na pewno chcesz usunąć kategorię <span class="delete-popup-category-name">${this.name}?</span> </div> <div class="extra content"><div class="ui two buttons"> <button class="ui basic green button delete-yes">Tak</button> <button class="ui basic red button detele-no">Nie</button></div></div>`;
         this.parent.render().appendChild(popup);
         popup.children[1].addEventListener('click', () => {
             this.parent.deleteCategory(this)
@@ -110,9 +110,8 @@ class Category {
 
     showRestorePopup() {
         const popup = document.createElement('div');
-        popup.className = 'delete-popup';
-        popup.innerHTML = `Czy na pewno chcesz przywrócić kategorię <span class="delete-popup-category-name">${this.name}?</span> <button class="delete-yes">Tak</button> <button class="detele-no">Nie</button>`;
-        this.parent.render().appendChild(popup);
+        popup.className = 'ui card delete-popup';
+        popup.innerHTML = `<div class ="content">Czy na pewno chcesz przywrócić kategorię <span class="delete-popup-category-name">${this.name}?</span> </div> <div class="extra content"><div class="ui two buttons"> <button class="ui basic green button delete-yes">Tak</button> <button class="ui basic red button detele-no">Nie</button></div></div>`;
         popup.children[1].addEventListener('click', () => {
             this.parent.restoreCategory(this);
             popup.remove();
@@ -151,9 +150,9 @@ class Category {
     createInputNameTask() {
         const formName = document.createElement('form')
         formName.classList.add('form-task-name')
-        formName.innerHTML = '<div class="newitem-title-wrapper">' +
+        formName.innerHTML = '<div class="newitem-title-wrapper ui input focus">' +
             '<textarea class="new-task-title-input" type="text"></textarea>' +
-            '<input class="new-task-title-submit" type ="button"  value="Add">' +
+            '<input class="ui button new-task-title-submit" type ="button"  value="Add">' +
             '</div>'
         const deleteFormButton = document.createElement('div')
         deleteFormButton.innerHTML = '<i class="fas fa-times"></i>'

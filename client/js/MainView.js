@@ -55,7 +55,7 @@ class MainView {
         this.activedButton.addEventListener('click', () => {
             this._showActiveCategories();
         });
-        console.log(Sortable);
+        
         this.archivedButton = this._addButtonNewCategory();
         this._buttonsWrapper.appendChild(this.archivedButton);
         this.archivedButton.classList.add("login-button");
@@ -93,6 +93,13 @@ class MainView {
     }
     render() {
         return this._container;
+    }
+
+    static sortByPrevAndId(a, b)
+    {
+        if (a.prev === null || a.id === b.prev) return -1;
+        if (b.prev === null || b.id === a.prev) return 1;
+        return 0;
     }
 
     get categoriesList() {
@@ -183,6 +190,45 @@ class MainView {
         input.parentElement.remove();
     }
 
+    async _moveCategory(category, newIndex)
+    {
+        if (!Number.isInteger(newIndex) || category.index === newIndex || newIndex > this._categoriesList.length - 1 || newIndex < 0) return;
+        try
+        {
+            const tempList = [...this._categoriesList];
+            tempList.splice(category.index, 1);
+            tempList.splice(newIndex, 0, category);
+            const oldIndex = category.index;
+            
+            const prevList = tempList.map((el, index) => index ? tempList[index-1].id : null);
+            
+            const requestHeaders = {
+                'Content-Type': 'application/json',
+                "x-token": this._token
+            };
+            const requestBody = {
+                prev: prevList[newIndex]
+            };
+            let response = await fetch(`/categories/${category.id}?order=true`,
+                {
+                    method: "put",
+                    headers: requestHeaders,
+                    body: JSON.stringify(requestBody)
+
+                })
+            if (response.status !== 200) throw response;
+
+            this._categoriesList = tempList;
+            this._categoriesList.forEach((cat, index) => cat.index = index);
+            this._reload();
+        }
+        catch (error)
+        {
+            console.log(error);
+        }
+    }
+    
+
     _createCategoryFromServer(catFromServer, index) {
         const category = new Category({
             parent: this,
@@ -209,6 +255,12 @@ class MainView {
         this._isArchivedShown = false;
         this._categoryButton.hidden = false;
         this._showList(this._categoriesList);
+    }
+
+    _reload()
+    {
+        if (this._isArchivedShown) this._showList(this._archivedCategoriesList);
+        else this._showList(this._categoriesList);
     }
 
     _showList(list) {
@@ -245,7 +297,6 @@ class MainView {
                 animation: 150,
                 onEnd: (evt) =>
                     {
-                        console.log(evt.newIndex);
                         this._moveCategory(evt.item.parent, evt.newIndex)
                     }
             })

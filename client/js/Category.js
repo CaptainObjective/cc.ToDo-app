@@ -35,6 +35,8 @@ class Category {
         this._categoryRestoreButton = '';
         this._categoryBody = document.createElement('div');
         this._categoryBody.className = 'category-body';
+        this._categoryTasksWrapper = document.createElement('div');
+        this._categoryTasksWrapper.className = 'category-tasks-wrapper';
         this._addNewTaskButton = document.createElement('button');
         this._addNewTaskButton.className = "ui teal button category-body-add-task";
         this._addNewTaskButton.innerHTML = '<i class="fas fa-plus"></i>';
@@ -46,6 +48,7 @@ class Category {
         this._categoryHeaderButtonWrapper.appendChild(this._categoryCopyButton);
         this._categoryHeaderButtonWrapper.appendChild(this._categorySortButton);
         this._categoryBody.appendChild(this._addNewTaskButton);
+        this._categoryBody.appendChild(this._categoryTasksWrapper);
         this._categoryHeaderTitle.onclick = this.showChangeNameInput.bind(this);
         this._categoryDeleteButton.onclick = this.showArchivePopup.bind(this);
         this._categoryCopyButton.onclick = this.copyCategory.bind(this);
@@ -56,7 +59,6 @@ class Category {
             const tasks = obiekt._tasksList;
             tasks.forEach(this._createTaskFromServer.bind(this));
         }
-
     }
 
     render() {
@@ -190,7 +192,7 @@ class Category {
     addNewTask() {
         if (document.getElementById('add-task-input')) return
         const formName = this.createInputNameTask();
-        this._categoryBody.appendChild(formName);
+        this._categoryTasksWrapper.appendChild(formName);
         //formName.children[0].focus();
         formName.children[2].addEventListener('click', this._createNewTask.bind(this));
     }
@@ -255,7 +257,7 @@ class Category {
             // taskDesc: taskFromServer.taskDesc
         })
         this._tasksList.push(task);
-        this._categoryBody.appendChild(task.render());
+        this._categoryTasksWrapper.appendChild(task.render());
     }
 
     async _deleteTask() {

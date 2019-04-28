@@ -73,9 +73,28 @@ class Category {
         formName.children[1].addEventListener('click', that.changeCategoryName.bind(this));
     }
 
-    changeCategoryName(e) {
+    async changeCategoryName(e) {
         e.preventDefault();
-        const form = this._categoryHeader.lastElementChild;
+        const form = this._categoryHeader.children[1];
+        const token = sessionStorage.getItem('x-token');
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            "x-token": token
+        }
+        const requestBody = {
+            name: form.firstElementChild.value
+        }
+        try {
+            const response = await fetch(`categories/${this.id}`, {
+                method: "put",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
+            })
+            if (response.status !== 200) throw response;
+        } catch (error) {
+            alert("Nie udało się połączyć z serwerem!");
+            return
+        }
         this.name = form.firstElementChild.value;
         this._categoryHeaderTitle.innerText = this.name;
         this._categoryHeaderTitle.hidden = false;
@@ -171,7 +190,7 @@ class Category {
     addNewTask() {
         if (document.getElementById('add-task-input')) return
         const formName = this.createInputNameTask();
-        this._category.appendChild(formName);
+        this._categoryBody.appendChild(formName);
         //formName.children[0].focus();
         formName.children[2].addEventListener('click', this._createNewTask.bind(this));
     }
@@ -198,33 +217,37 @@ class Category {
                 body: JSON.stringify(requestBody)
             })
             if (response.status !== 200) throw response;
-            taskFromServer = response.json();
+            taskFromServer = await response.json();
         } catch (error) {
             alert("Nie udało się połączyć z serwerem!");
             return;
         }
 
+        console.log(taskFromServer)
+
         const task = new Task({
-            id: taskFromServer.id,
+            taskId: taskFromServer.id,
             taskParent: this,
             taskName: input.value,
+            taskIndex: this._tasksList.length,
             taskDeadlineDate: null,
             taskDesc: null,
             taskCompleted: false
         })
         this._tasksList.push(task);
-        this._category.appendChild(task.render());
+        this._categoryBody.appendChild(task.render());
         input.parentElement.remove();
 
     }
 
-    _createTaskFromServer(taskFromServer) {
+    _createTaskFromServer(taskFromServer, index) {
         console.log(taskFromServer)
         const task = new Task({
             taskParent: this,
-            taskId: taskFromServer.taskId,
+            taskId: taskFromServer.id,
             taskCategoryId: taskFromServer.taskCategoryId,
             taskName: taskFromServer.desc,
+            index,
             taskDeadlineDate: taskFromServer.taskDeadlineDate,
             taskCompleted: taskFromServer.taskCompleted,
             taskExp: taskFromServer.taskExp,
@@ -232,7 +255,29 @@ class Category {
             // taskDesc: taskFromServer.taskDesc
         })
         this._tasksList.push(task);
-        this._category.appendChild(task.render());
+        this._categoryBody.appendChild(task.render());
+    }
+
+    async _deleteTask() {
+        this._parent._tasksList.splice(this.taskIndex, 1);
+        const token = sessionStorage.getItem('x-token');
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            'x-token': token
+        };
+        try {
+            console.log(this._taskId)
+            const response = await fetch(`/tasks/${this._taskId}`, {
+                method: "delete",
+                headers: requestHeaders,
+            })
+            if (response.status !== 200) throw response;
+        } catch (error) {
+            alert("Nie udało się połączyć z serwerem!");
+            return;
+        }
+        this.render().remove();
+        this._parent._tasksList.forEach((task, index) => task.taskIndex = index)
     }
 
     copyCategory() {

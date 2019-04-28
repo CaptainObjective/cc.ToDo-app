@@ -173,6 +173,8 @@ class MainView {
             return;
         }
 
+        console.log(categoryFromServer)
+
         const category = new Category({
             id: categoryFromServer.id,
             parent: this,

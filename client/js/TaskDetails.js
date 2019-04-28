@@ -36,19 +36,19 @@ class TaskDetails {
         this._closeButton.innerHTML = `<i class="fas fa-times"></i>`;
         this._taskDates = document.createElement('div'); //div z taskDates
         this._taskDates.classList.add("taskDates");
-        this._taskCreatedDate = document.createElement('form');// form z task created date
+        this._taskCreatedDate = document.createElement('form'); // form z task created date
         this._taskCreatedDate.classList.add("task-created-date");
         this._createdDateHeader = document.createElement("h5");
         this._createdDateHeader.classList.add("created-date-header");
         this._createdDateHeader.innerText = "Data powstania"
         this._inputCreatedDate = document.createElement("input");
         this._inputCreatedDate.type = "date";
-        this._inputCreatedDate.value = this.parent._createdDate;   //new Date().toISOString().substring(0, 10);
+        this._inputCreatedDate.value = this.parent._createdDate; //new Date().toISOString().substring(0, 10);
         this._createdDateButton = document.createElement("button")
         this._createdDateButton.classList.add("button-creat1ed-date")
         this._createdDateButton.innerText = "Prześlij"
 
-        this._taskDeadline = document.createElement('form');// form z task deadline
+        this._taskDeadline = document.createElement('form'); // form z task deadline
         this._taskDeadline.classList.add("task-deadline-date");
         this._deadlineHeader = document.createElement("h5");
         this._deadlineHeader.classList.add("deadline-date-header");
@@ -60,17 +60,17 @@ class TaskDetails {
         this._deadlineButton.classList.add("button-deadline-date")
         this._deadlineButton.innerText = "Prześlij"
 
-        this._taskExp = document.createElement('form');// form z task EXP
+        this._taskExp = document.createElement('form'); // form z task EXP
         this._taskExp.classList.add("task-deadline-date");
         this._taskExpHeader = document.createElement("h5");
         this._taskExpHeader.classList.add("deadline-date-header");
         this._taskExpHeader.innerText = "Poziom trudności"
-        
+
         this._taskExpCheckBox1Area = document.createElement('div');
         this._taskExpCheckBox1 = document.createElement("input");
-        this._taskExpCheckBox1.type ="radio";
-        this._taskExpCheckBox1.name ="exp";
-        this._taskExpCheckBox1.checked ="true";
+        this._taskExpCheckBox1.type = "radio";
+        this._taskExpCheckBox1.name = "exp";
+        this._taskExpCheckBox1.checked = "true";
         this._taskExpCheckBox1Text = document.createElement('p');
         this._taskExpCheckBox1Text.innerText = "Łatwy";
 
@@ -80,7 +80,7 @@ class TaskDetails {
         this._taskExpCheckBox2.name = "exp";
         this._taskExpCheckBox2Text = document.createElement('p');
         this._taskExpCheckBox2Text.innerText = "Średni";
-        
+
         this._taskExpCheckBox3Area = document.createElement('div');
         this._taskExpCheckBox3 = document.createElement("input");
         this._taskExpCheckBox3.type = "radio";
@@ -91,7 +91,7 @@ class TaskDetails {
         this._checkboxButton = document.createElement("button")
         this._checkboxButton.classList.add("button-checkbox")
         this._checkboxButton.innerText = "Zapisz"
-        
+
         this._taskDetailsContainer.appendChild(this._taskDetailsWindow);
         this._taskDetailsWindow.appendChild(this._closeButton);
         this._taskDetailsWindow.appendChild(this._taskDetailTitle);
@@ -142,11 +142,12 @@ class TaskDetails {
         e.preventDefault();
         const taskname = this._taskDetailTitle.children[1].value;
         this.parent._taskHeaderTitle.innerText = taskname;
-        this.parent._taskName = taskname;      
+        this.parent._taskName = taskname;
     }
 
     changeTaskDescription(e) {
         e.preventDefault();
+
         const taskdescription = this._taskDescription.children[1].value;
         this.parent._taskDesc = taskdescription;
     }
@@ -163,30 +164,34 @@ class TaskDetails {
         this.parent._deadline = deadline;
     }
 
-    changeExp(e){
+    changeExp(e) {
         e.preventDefault();
         const checkbox1 = this._taskExpCheckBox1Area.firstElementChild.checked;
         const checkbox2 = this._taskExpCheckBox2Area.firstElementChild.checked;
         const checkbox3 = this._taskExpCheckBox3Area.firstElementChild.checked;
-        if(checkbox1){
+        if (checkbox1) {
             this.parent._taskExp = 1;
-        }
-        else if(checkbox2){
+        } else if (checkbox2) {
             this.parent._taskExp = 2;
-        }
-        else{
+        } else {
             this.parent._taskExp = 3;
         }
     }
 
-    checkExp(){
-        const exp = this.parent._taskExp; 
-        if (exp === 1) {this._taskExpCheckBox1Area.firstElementChild.checked = true};
-        if (exp === 2) {this._taskExpCheckBox2Area.firstElementChild.checked = true};
-        if (exp === 3) {this._taskExpCheckBox3Area.firstElementChild.checked = true};
+    checkExp() {
+        const exp = this.parent._taskExp;
+        if (exp === 1) {
+            this._taskExpCheckBox1Area.firstElementChild.checked = true
+        };
+        if (exp === 2) {
+            this._taskExpCheckBox2Area.firstElementChild.checked = true
+        };
+        if (exp === 3) {
+            this._taskExpCheckBox3Area.firstElementChild.checked = true
+        };
     }
 
-    closeWindow(){
+    closeWindow() {
         this._taskDetailsContainer.remove();
     }
 

@@ -11,9 +11,8 @@ router.post('/', async (req, res, next) => {
     if (error) return res.status(400).send(error.details[0].message);
 
     try {
-        let request = new sql.Request();
-
-        let user = await request
+        const userRequest = new sql.Request();
+        let user = await userRequest
             .query(`SELECT UserId, UserPasswd FROM Users WHERE UserEmail = '${req.body.email}'`);
         user = user.recordset[0];
         if (!user) return res.status(404).send('Invalid email or password.');
@@ -23,6 +22,7 @@ router.post('/', async (req, res, next) => {
 
         const token = jwt.sign({ id: user.UserId }, process.env.JWT_PRIVATE_KEY);
         
+        const request = new sql.Request();
         let userWithDetails = await request
             .query(`EXEC SelectUserWithDetails ${user.UserId}`);
         userWithDetails = userWithDetails.recordset[0][0];

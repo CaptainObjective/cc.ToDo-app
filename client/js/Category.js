@@ -174,16 +174,41 @@ class Category {
         formName.children[2].addEventListener('click', this._createNewTask.bind(this));
     }
 
-    _createNewTask(e) {
+    async _createNewTask(e) {
         e.preventDefault();
         const input = this._inputTaskName;
+        const token = sessionStorage.getItem('x-token');
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            'x-token': token
+        };
+        const requestBody = {
+            categoryId: this.id,
+            desc: input.value,
+            deadline: null,
+            exp: 1
+        };
+        let taskFromServer = {};
+        try {
+            const response = await fetch("/tasks", {
+                method: "post",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
+            })
+            if (response.status !== 200) throw response;
+            taskFromServer = response.json();
+        } catch (error) {
+            alert("Nie udało się połączyć z serwerem!");
+            return;
+        }
+
         const task = new Task({
+            id: taskFromServer.id,
             taskParent: this,
             taskName: input.value,
-            taskCreatedDate: new Date(),
+            taskDeadlineDate: null,
             taskDesc: null,
             taskCompleted: false
-
         })
         this._tasksList.push(task);
         this._category.appendChild(task.render());
@@ -192,17 +217,17 @@ class Category {
     }
 
     _createTaskFromServer(taskFromServer) {
+        console.log(taskFromServer)
         const task = new Task({
             taskParent: this,
             taskId: taskFromServer.taskId,
             taskCategoryId: taskFromServer.taskCategoryId,
-            taskName: taskFromServer.taskName,
-            taskCreatedDate: taskFromServer.taskCreatedDate,
+            taskName: taskFromServer.desc,
             taskDeadlineDate: taskFromServer.taskDeadlineDate,
             taskCompleted: taskFromServer.taskCompleted,
             taskExp: taskFromServer.taskExp,
             prev: taskFromServer.prev,
-            taskDesc: taskFromServer.taskDesc
+            // taskDesc: taskFromServer.taskDesc
         })
         this._tasksList.push(task);
         this._category.appendChild(task.render());

@@ -237,7 +237,7 @@ class Category {
             taskCompleted: false
         })
         this._tasksList.push(task);
-        this._categoryBody.appendChild(task.render());
+        this._categoryTasksWrapper.appendChild(task.render());
         input.parentElement.remove();
 
     }

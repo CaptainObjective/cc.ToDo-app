@@ -1,8 +1,7 @@
 @import 'variables.scss';
 @import 'mixins.scss';
 
-.drag
-{
+.drag {
     position: relative;
     transform: rotateZ(20deg);
     background-color: red !important;
@@ -68,6 +67,14 @@ button {
             border: 2px solid darken($color: $primary, $amount: 60%)
         }
     }
+
+    &-body {
+        height: 80%;
+    }
+}
+
+.category-tasks-wrapper {
+    height: 100%;
 }
 
 .delete-popup {

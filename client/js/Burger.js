@@ -51,7 +51,7 @@ class Burger {
             </div>
         </div>
         <div class="ui segment">
-            <div class="ui animated fluid basic grey button" tabindex="0">
+            <div id="logout" class="ui animated fluid basic grey button" tabindex="0">
                 <div class="visible content">
                     Wyloguj
                 </div>
@@ -71,10 +71,12 @@ class Burger {
     }
 
     updateBurger() {
+        document.getElementById('logout').addEventListener('click', this.logout);
+
         fetch('users/me', {
                     method: "get",
                     headers: {
-                        "x-token": ""
+                        "x-token": sessionStorage.getItem('x-token')
                         }
                     }).then(res => {
                         return res.json()
@@ -106,7 +108,8 @@ class Burger {
     }
 
     logout() {
-        console.log
+        sessionStorage.removeItem('x-token');
+        document.location.reload();
     }
 
     fillPusher() {

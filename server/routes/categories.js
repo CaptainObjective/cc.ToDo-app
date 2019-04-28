@@ -46,9 +46,9 @@ router.put('/:id', auth, categoryAuth, async (req, res, next) => {
             let validPrev = await validPrevRequest
                 .query(`SELECT 1 FROM Categories WHERE CategoryId = ${req.body.prev} AND CategoryUserId = ${req.user.id}`)
             validPrev = validPrev.recordset[0];
-            if (!validPrev) return res.status(403).send('Unallowable "prev" value.');
+            if (!validPrev) return res.status(403).send('Unallowable "prev" value');
         }
-        
+
         await request
             .input('CategoryId', req.params.id)
             .input('CategoryUserId', sql.Int, req.user.id)
@@ -67,7 +67,7 @@ router.delete('/:id', auth, categoryAuth, async(req, res, next) => {
         await request
             .input('CategoryId', req.params.id)
             .execute('DeleteCategory')
-        return res.send('Category deleted.');
+        return res.send('Category deleted');
     } catch (err) {
         next(err)
     }

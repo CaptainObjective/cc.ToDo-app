@@ -15,10 +15,10 @@ router.post('/', async (req, res, next) => {
         let user = await userRequest
             .query(`SELECT UserId, UserPasswd FROM Users WHERE UserEmail = '${req.body.email}'`);
         user = user.recordset[0];
-        if (!user) return res.status(404).send('Invalid email or password.');
+        if (!user) return res.status(404).send('Invalid email or password');
 
         const validPassword = await bcrypt.compare(req.body.passwd, user.UserPasswd);
-        if (!validPassword) return res.status(400).send('Invalid email or password.');
+        if (!validPassword) return res.status(400).send('Invalid email or password');
 
         const token = jwt.sign({ id: user.UserId }, process.env.JWT_PRIVATE_KEY);
         

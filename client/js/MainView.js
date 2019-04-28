@@ -17,7 +17,7 @@ class MainView {
         this._burger = new Burger();
         document.body.appendChild(this._burger.render());
         this._burger.fillPusher(); //pakuje cały content do pushera
-        //this._burger.updateBurger();
+        this._burger.updateBurger();
         //
 
         this._container.innerHTML = `<div id="main-view-bar" class="main-view-bar"></div> <div class= "buttons-wrapper"></div>

@@ -12,6 +12,8 @@ class Category {
         }
         this._tasksList = [];
         this._category = document.createElement('div');
+        // this._category.draggable = "true";
+        this._category.parent = this;
         this._category.className = 'ui segment category column';
         this._categoryHeader = document.createElement('div');
         this._categoryHeader.className = 'ui segment category-header';

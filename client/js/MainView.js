@@ -1,5 +1,6 @@
 import Category from './Category'
 import Burger from './Burger';
+import Sortable from '../../node_modules/sortablejs/Sortable';
 
 class MainView {
     constructor({
@@ -40,6 +41,11 @@ class MainView {
 
         this._isArchivedShown = false;
 
+        this._categoryWrapper = document.createElement('div');
+        this._categoryWrapper.className = 'category-wrapper ui container">';
+        this._listWrapper.appendChild(this._categoryWrapper);
+
+
         // buttony do testowania kodu
 
         this.activedButton = this._addButtonNewCategory();
@@ -49,13 +55,21 @@ class MainView {
         this.activedButton.addEventListener('click', () => {
             this._showActiveCategories();
         });
-
+        console.log(Sortable);
         this.archivedButton = this._addButtonNewCategory();
         this._buttonsWrapper.appendChild(this.archivedButton);
         this.archivedButton.classList.add("login-button");
         this.archivedButton.innerText = "Zarchiwizowane";
         this.archivedButton.addEventListener('click', () => {
             this._showArchivedCategories();
+        });
+
+        this.helpfullButton = this._addButtonNewCategory();
+        this._listWrapper.appendChild(this.helpfullButton);
+        this.helpfullButton.classList.add("login-button");
+        this.helpfullButton.innerText = "Move";
+        this.helpfullButton.addEventListener('click', () => {
+            this._moveCategory(this._categoriesList[0], this._categoriesList.length -1);
         });
 
         this._categoryWrapper = document.createElement('div');
@@ -70,7 +84,10 @@ class MainView {
             for (let i in user) {
                 this[i] = user[i];
             }
-            categories.forEach(this._createCategoryFromServer.bind(this));
+
+            categories.sort(MainView.sortByPrevAndId).forEach(this._createCategoryFromServer.bind(this));
+            this._reload();
+            this._enableMoving();
         }
 
     }
@@ -196,8 +213,8 @@ class MainView {
 
     _showList(list) {
 
-        [...this._listWrapper.getElementsByClassName("category")].forEach(category => category.remove());
-        list.forEach(category => this._listWrapper.appendChild(category.render()));
+        [...this._categoryWrapper.getElementsByClassName("category")].forEach(category => category.remove());
+        list.forEach(category => this._categoryWrapper.appendChild(category.render()));
     }
 
 
@@ -221,6 +238,18 @@ class MainView {
         this._archivedCategoriesList.forEach((category, index) => category.index = index);
     }
 
+    _enableMoving()
+    {
+        new Sortable(this._categoryWrapper,
+            {
+                animation: 150,
+                onEnd: (evt) =>
+                    {
+                        console.log(evt.newIndex);
+                        this._moveCategory(evt.item.parent, evt.newIndex)
+                    }
+            })
+    }
 }
 
 export default MainView;

@@ -2,39 +2,10 @@ class Burger {
     constructor() {
         this._sidebar = document.createElement('div');
         this._sidebar.setAttribute('class', 'ui sidebar right vertical menu');
-        this._sidebar.innerHTML = `
-        <img style="margin-top: 40px" class="ui tiny centered circular image"
-            src="https://avatars3.githubusercontent.com/u/36295040?s=460&v=4">
-        <h3 class="ui center aligned header">
-            Mateusz Pichniarczyk
-        </h3>
-        <h5 class="ui center aligned header">
-            Poziom 5
-        </h5>
-        <div class="ui segment item">
-            <div class="ui teal progress" id="exp-bar">
-                <div class="bar"></div>
-                <div id="exp-text" class="label">400/800 XP</div>
-            </div>
 
-            <div class="ui divider"></div>
-            <div class="ui animated fluid teal button" tabindex="0">
-                <div class="visible content">
-                    Sklep
-                </div>
-                <div class="hidden content">
-                    <i class="shop icon"></i>
-                </div>
-            </div>
-            <div class="ui divider"></div>
-            <div class="ui animated fluid teal button" tabindex="0">
-                <div class="visible content">
-                    Osiągnięcia
-                </div>
-                <div class="hidden content">
-                    <i class="trophy icon"></i>
-                </div>
-            </div>
+        this._sidebar.innerHTML = `
+        <div id='user-segment' class="ui vertical segment loading" style="min-height: 25vh">
+
         </div>
         <div class="ui segment">
             <h3 class="ui center aligned header">Dzisiejsze zadanie specjalne</h3>
@@ -80,22 +51,12 @@ class Burger {
             </div>
         </div>
         <div class="ui segment">
-            <div class="ui two buttons">
-                <div class="ui animated fluid teal button" tabindex="0">
-                    <div class="visible content">
-                        Ustawienia
-                    </div>
-                    <div class="hidden content">
-                        <i class="address book icon"></i>
-                    </div>
+            <div class="ui animated fluid basic grey button" tabindex="0">
+                <div class="visible content">
+                    Wyloguj
                 </div>
-                <div class="ui animated fluid basic grey button" tabindex="0">
-                    <div class="visible content">
-                        Wyloguj
-                    </div>
-                    <div class="hidden content">
-                        <i class="sign-out alternate icon"></i>
-                    </div>
+                <div class="hidden content">
+                    <i class="sign-out alternate icon"></i>
                 </div>
             </div>
         </div>`
@@ -107,6 +68,45 @@ class Burger {
     toggle() {
         $('.ui.sidebar')
             .sidebar('toggle');
+    }
+
+    updateBurger() {
+        fetch('users/me', {
+                    method: "get",
+                    headers: {
+                        "x-token": ""
+                        }
+                    }).then(res => {
+                        return res.json()
+                    }).then(res => {
+                        const {name, level, currentExp, remainingExp} = res.userWithDetails;
+                        const userDataDiv = document.getElementById('user-segment');
+                        userDataDiv.setAttribute('class', 'ui vertical segment')
+                        userDataDiv.innerHTML = this.userSegment(name,level,currentExp,remainingExp);
+                        this.setExp(currentExp, remainingExp)
+                    })
+    }
+
+    userSegment(name, level, currentExp, remainingExp) {
+        return `
+        <img style="margin-top: 40px" class="ui tiny centered circular image"
+            src="https://img.icons8.com/ios/50/000000/neutral-emoticon.png">
+        <h3 class="ui center aligned header">
+            ${name}
+        </h3>
+        <h5 class="ui center aligned header">
+            Poziom ${level}
+        </h5>
+        <div class="ui segment item">
+            <div class="ui teal progress" id="exp-bar">
+                <div class="bar"></div>
+                <div id="exp-text" class="label">${currentExp}/${remainingExp} XP</div>
+            </div>
+        </div>`
+    }
+
+    logout() {
+        console.log
     }
 
     fillPusher() {

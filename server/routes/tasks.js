@@ -120,18 +120,14 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
                     SET TaskDesc = @desc, TaskDeadline = @deadline, TaskCompleted = @completed, TaskExp = @exp
                     WHERE TaskId = '${req.params.id}'`);     
 
-        const userRequest = new sql.Request(transaction);
-        let user = await userRequest
-                        .query(`SELECT UserLevel, UserCurrentExp, UserRemainingExp FROM Users WHERE UserId = ${req.user.id}`);
-        user = user.recordset[0]
-
-        await transaction.commit();
-
-        return res.send({
-            level: user.UserLevel,
-            currentExp: user.UserCurrentExp,
-            remainingExp: user.UserRemainingExp
+        let userWithDetailsRequest = new sql.Request();
+        let userWithDetails = await userWithDetailsRequest
+            .query(`EXEC SelectUserWithDetails ${user.UserId}`);
+        userWithDetails = userWithDetails.recordset[0][0];
+        res.send({
+            user: userWithDetails
         });
+
     } catch (err) {
         next(err);
     }

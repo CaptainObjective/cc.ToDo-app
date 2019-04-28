@@ -37,6 +37,24 @@ router.post('/', async (req, res, next) => {
     }
 });
 
+router.get('/me', auth, async (req, res, next) => {
+    try {
+        const userRequest = new sql.Request();
+        let user = await userRequest
+            .query(`SELECT 1 FROM Users WHERE UserId = '${req.user.id}'`)
+        user = user.recordset[0];
+        if (!user) return res.status(404).send('User does not exist');
+
+        const request = new sql.Request();
+        userWithDetails = await request
+            .query(`EXEC SelectUserWithDetails ${req.user.id}`);
+        userWithDetails = userWithDetails.recordset[0][0];
+        res.send({ userWithDetails });
+    } catch (err) { 
+        next(err) 
+    }
+})
+
 router.put('/me', auth, async (req, res, next) => {
     const { error } = validateEditUser(req.body);
         if (error) return res.status(400).send(error.details[0].message);

@@ -65,15 +65,6 @@ class MainView {
             this._showArchivedCategories();
         });
 
-        this.activedButton = this._addButtonNewCategory();
-        this._buttonsWrapper.appendChild(this.activedButton);
-        this.activedButton.innerText = "Move";
-        this.activedButton.classList.add("login-button");
-        this.activedButton.addEventListener('click', () => {
-            this._moveCategory(this._categoriesList[0], this._categoriesList.length - 1);
-        });
-
-
         this._categoryWrapper = document.createElement('div');
         this._categoryWrapper.className = 'category-wrapper ui container">';
         this._listWrapper.appendChild(this._categoryWrapper);
@@ -81,8 +72,9 @@ class MainView {
         if (!user) {
             alert("User should be provided!");
         } else {
-            const categories = user.categories.map(el => el).filter(el => !el.archived) || [];
-            const archivedCategories = user.categories.map(el => el).filter(el => el.archived) || [];
+            user.categories = user.categories || []
+            const categories = user.categories.map(el => el).filter(el => !el.archived);
+            const archivedCategories = user.categories.map(el => el).filter(el => el.archived);
             delete user.categories;
             for (let i in user) {
                 this[i] = user[i];

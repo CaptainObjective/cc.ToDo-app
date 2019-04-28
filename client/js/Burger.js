@@ -2,100 +2,18 @@ class Burger {
     constructor() {
         this._sidebar = document.createElement('div');
         this._sidebar.setAttribute('class', 'ui sidebar right vertical menu');
+
         this._sidebar.innerHTML = `
-        <img style="margin-top: 40px" class="ui tiny centered circular image"
-            src="https://avatars3.githubusercontent.com/u/36295040?s=460&v=4">
-        <h3 class="ui center aligned header">
-            Mateusz Pichniarczyk
-        </h3>
-        <h5 class="ui center aligned header">
-            Poziom 5
-        </h5>
-        <div class="ui segment item">
-            <div class="ui teal progress" id="exp-bar">
-                <div class="bar"></div>
-                <div id="exp-text" class="label">400/800 XP</div>
-            </div>
+        <div id='user-segment' class="ui vertical segment loading" style="min-height: 25vh">
+        </div>
 
-            <div class="ui divider"></div>
-            <div class="ui animated fluid teal button" tabindex="0">
+        <div class="ui segment">
+            <div id="logout" class="ui animated fluid basic grey button" tabindex="0">
                 <div class="visible content">
-                    Sklep
+                    Wyloguj
                 </div>
                 <div class="hidden content">
-                    <i class="shop icon"></i>
-                </div>
-            </div>
-            <div class="ui divider"></div>
-            <div class="ui animated fluid teal button" tabindex="0">
-                <div class="visible content">
-                    Osiągnięcia
-                </div>
-                <div class="hidden content">
-                    <i class="trophy icon"></i>
-                </div>
-            </div>
-        </div>
-        <div class="ui segment">
-            <h3 class="ui center aligned header">Dzisiejsze zadanie specjalne</h3>
-            <div class="ui cards">
-
-                <div class="card">
-                    <div class="content">
-                        <i class='bullhorn icon'></i>
-                        <div class="header">
-                            Pompuj!
-                        </div>
-                        <div class="meta">
-                            150 xp
-                        </div>
-                        <div class="description">
-                            Zrób 3 serie po 15 pompek.
-                        </div>
-                    </div>
-                    <div class="extra content">
-                        <div class="ui two buttons">
-                            <div class="ui two buttons">
-                                <div class="ui animated basic green button" tabindex="0">
-                                    <div class="visible content">
-                                        Akceptuj
-                                    </div>
-                                    <div class="hidden content">
-                                        <i class="thumbs up icon"></i>
-                                    </div>
-                                </div>
-                                <div class="ui animated fluid basic red button" tabindex="0">
-                                    <div class="visible content">
-                                        Odrzuć
-                                    </div>
-                                    <div class="hidden content">
-                                        <i class="thumbs down icon"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="ui segment">
-            <div class="ui two buttons">
-                <div class="ui animated fluid teal button" tabindex="0">
-                    <div class="visible content">
-                        Ustawienia
-                    </div>
-                    <div class="hidden content">
-                        <i class="address book icon"></i>
-                    </div>
-                </div>
-                <div class="ui animated fluid basic grey button" tabindex="0">
-                    <div class="visible content">
-                        Wyloguj
-                    </div>
-                    <div class="hidden content">
-                        <i class="sign-out alternate icon"></i>
-                    </div>
+                    <i class="sign-out alternate icon"></i>
                 </div>
             </div>
         </div>`
@@ -107,6 +25,48 @@ class Burger {
     toggle() {
         $('.ui.sidebar')
             .sidebar('toggle');
+    }
+
+    updateBurger() {
+        document.getElementById('logout').addEventListener('click', this.logout);
+
+        fetch('users/me', {
+                    method: "get",
+                    headers: {
+                        "x-token": sessionStorage.getItem('x-token')
+                        }
+                    }).then(res => {
+                        return res.json()
+                    }).then(res => {
+                        const {name, level, currentExp, remainingExp} = res.userWithDetails;
+                        const userDataDiv = document.getElementById('user-segment');
+                        userDataDiv.setAttribute('class', 'ui vertical segment')
+                        userDataDiv.innerHTML = this.userSegment(name,level,currentExp,remainingExp);
+                        this.setExp(currentExp, remainingExp)
+                    })
+    }
+
+    userSegment(name, level, currentExp, remainingExp) {
+        return `
+        <img style="margin-top: 40px" class="ui small centered circular image"
+            src="https://i.some-random-api.ml/IC9sssLQyP.jpg">
+        <h3 class="ui center aligned header">
+            ${name}
+        </h3>
+        <h4 class="ui center aligned header">
+            Poziom ${level}
+        </h4>
+        <div class="ui segment item">
+            <div class="ui teal progress" id="exp-bar">
+                <div class="bar"></div>
+                <div id="exp-text" class="label">${currentExp}/${remainingExp} XP</div>
+            </div>
+        </div>`
+    }
+
+    logout() {
+        sessionStorage.removeItem('x-token');
+        document.location.reload();
     }
 
     fillPusher() {
@@ -126,8 +86,9 @@ class Burger {
         return this._menuButton;
     }
 
-    setExp(currentExp, nextExp) {
-        document.querySelector('#exp-text').innerHTML = `${currentExp}/${nextExp} XP`
+    setExp(currentExp, remExp) {
+        const nexExp = currentExp + remExp;
+        document.querySelector('#exp-text').innerHTML = `${currentExp}/${nexExp} XP`
         $('#exp-bar').progress({
             percent: currentExp*100/nextExp
         });

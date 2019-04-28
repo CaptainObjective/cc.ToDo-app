@@ -12,6 +12,8 @@ class Category {
         }
         this._tasksList = [];
         this._category = document.createElement('div');
+        // this._category.draggable = "true";
+        this._category.parent = this;
         this._category.className = 'ui segment category column';
         this._categoryHeader = document.createElement('div');
         this._categoryHeader.className = 'ui segment category-header';
@@ -33,6 +35,8 @@ class Category {
         this._categoryRestoreButton = '';
         this._categoryBody = document.createElement('div');
         this._categoryBody.className = 'category-body';
+        this._categoryTasksWrapper = document.createElement('div');
+        this._categoryTasksWrapper.className = 'category-tasks-wrapper';
         this._addNewTaskButton = document.createElement('button');
         this._addNewTaskButton.className = "ui teal button category-body-add-task";
         this._addNewTaskButton.innerHTML = '<i class="fas fa-plus"></i>';
@@ -44,6 +48,7 @@ class Category {
         this._categoryHeaderButtonWrapper.appendChild(this._categoryCopyButton);
         this._categoryHeaderButtonWrapper.appendChild(this._categorySortButton);
         this._categoryBody.appendChild(this._addNewTaskButton);
+        this._categoryBody.appendChild(this._categoryTasksWrapper);
         this._categoryHeaderTitle.onclick = this.showChangeNameInput.bind(this);
         this._categoryDeleteButton.onclick = this.showArchivePopup.bind(this);
         this._categoryCopyButton.onclick = this.copyCategory.bind(this);
@@ -54,7 +59,6 @@ class Category {
             const tasks = obiekt._tasksList;
             tasks.forEach(this._createTaskFromServer.bind(this));
         }
-
     }
 
     render() {
@@ -71,9 +75,28 @@ class Category {
         formName.children[1].addEventListener('click', that.changeCategoryName.bind(this));
     }
 
-    changeCategoryName(e) {
+    async changeCategoryName(e) {
         e.preventDefault();
-        const form = this._categoryHeader.lastElementChild;
+        const form = this._categoryHeader.children[1];
+        const token = sessionStorage.getItem('x-token');
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            "x-token": token
+        }
+        const requestBody = {
+            name: form.firstElementChild.value
+        }
+        try {
+            const response = await fetch(`categories/${this.id}`, {
+                method: "put",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
+            })
+            if (response.status !== 200) throw response;
+        } catch (error) {
+            alert("Nie udało się połączyć z serwerem!");
+            return
+        }
         this.name = form.firstElementChild.value;
         this._categoryHeaderTitle.innerText = this.name;
         this._categoryHeaderTitle.hidden = false;
@@ -169,43 +192,94 @@ class Category {
     addNewTask() {
         if (document.getElementById('add-task-input')) return
         const formName = this.createInputNameTask();
-        this._category.appendChild(formName);
+        this._categoryTasksWrapper.appendChild(formName);
         //formName.children[0].focus();
         formName.children[2].addEventListener('click', this._createNewTask.bind(this));
     }
 
-    _createNewTask(e) {
+    async _createNewTask(e) {
         e.preventDefault();
         const input = this._inputTaskName;
+        const token = sessionStorage.getItem('x-token');
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            'x-token': token
+        };
+        const requestBody = {
+            categoryId: this.id,
+            desc: input.value,
+            deadline: null,
+            exp: 1
+        };
+        let taskFromServer = {};
+        try {
+            const response = await fetch("/tasks", {
+                method: "post",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
+            })
+            if (response.status !== 200) throw response;
+            taskFromServer = await response.json();
+        } catch (error) {
+            alert("Nie udało się połączyć z serwerem!");
+            return;
+        }
+
+        console.log(taskFromServer)
+
         const task = new Task({
+            taskId: taskFromServer.id,
             taskParent: this,
             taskName: input.value,
-            taskCreatedDate: new Date(),
+            taskIndex: this._tasksList.length,
+            taskDeadlineDate: null,
             taskDesc: null,
             taskCompleted: false
-
         })
         this._tasksList.push(task);
-        this._category.appendChild(task.render());
+        this._categoryBody.appendChild(task.render());
         input.parentElement.remove();
 
     }
 
-    _createTaskFromServer(taskFromServer) {
+    _createTaskFromServer(taskFromServer, index) {
+        console.log(taskFromServer)
         const task = new Task({
             taskParent: this,
-            taskId: taskFromServer.taskId,
+            taskId: taskFromServer.id,
             taskCategoryId: taskFromServer.taskCategoryId,
-            taskName: taskFromServer.taskName,
-            taskCreatedDate: taskFromServer.taskCreatedDate,
+            taskName: taskFromServer.desc,
+            index,
             taskDeadlineDate: taskFromServer.taskDeadlineDate,
             taskCompleted: taskFromServer.taskCompleted,
             taskExp: taskFromServer.taskExp,
             prev: taskFromServer.prev,
-            taskDesc: taskFromServer.taskDesc
+            // taskDesc: taskFromServer.taskDesc
         })
         this._tasksList.push(task);
-        this._category.appendChild(task.render());
+        this._categoryTasksWrapper.appendChild(task.render());
+    }
+
+    async _deleteTask() {
+        this._parent._tasksList.splice(this.taskIndex, 1);
+        const token = sessionStorage.getItem('x-token');
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            'x-token': token
+        };
+        try {
+            console.log(this._taskId)
+            const response = await fetch(`/tasks/${this._taskId}`, {
+                method: "delete",
+                headers: requestHeaders,
+            })
+            if (response.status !== 200) throw response;
+        } catch (error) {
+            alert("Nie udało się połączyć z serwerem!");
+            return;
+        }
+        this.render().remove();
+        this._parent._tasksList.forEach((task, index) => task.taskIndex = index)
     }
 
     copyCategory() {

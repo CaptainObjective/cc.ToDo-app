@@ -87,8 +87,8 @@ class Burger {
     }
 
     setExp(currentExp, remExp) {
-        const nexExp = currentExp + remExp;
-        document.querySelector('#exp-text').innerHTML = `${currentExp}/${nexExp} XP`
+        const nextExp = currentExp + remExp;
+        document.querySelector('#exp-text').innerHTML = `${currentExp}/${nextExp} XP`
         $('#exp-bar').progress({
             percent: currentExp*100/nextExp
         });

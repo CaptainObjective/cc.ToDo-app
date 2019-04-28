@@ -1,28 +1,26 @@
 const express = require('express');
 const sql = require('mssql');
-const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const auth = require('../middleware/auth');
+const subtaskAuth = require('../middleware/subtaskAuth');
 
 const router = express.Router();
 
 router.post('/', auth, async (req, res, next) => {
-    const {
-        error
-    } = validateSubtask(req.body);
+    const { error } = validateSubtask(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
     try {
-        let userIdRequest = new sql.Request();
+        const userIdRequest = new sql.Request();
         let userId = await userIdRequest
             .query(`SELECT Categories.CategoryUserId AS uid FROM Categories
-            JOIN Tasks ON Categories.CategoryId = Tasks.TaskCategoryId
-            WHERE Tasks.TaskId = '${req.body.taskId}'`);
-        if (!userId.recordset[0].uid || userId.recordset[0].uid != req.user.id) {
-            return res.status(403).send(`Cannot create subtasks for another user`);
+                    JOIN Tasks ON Categories.CategoryId = Tasks.TaskCategoryId
+                    WHERE Tasks.TaskId = '${req.body.taskId}'`);
+        if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
+            return res.status(403).send('Access denied or task non-existent');
         }
 
-        let request = new sql.Request();
+        const request = new sql.Request();
         let id = await request
             .input('SubtaskTaskId', sql.Int, req.body.taskId)
             .input('SubtaskDesc', sql.NVarChar(1024), req.body.desc)
@@ -36,69 +34,51 @@ router.post('/', auth, async (req, res, next) => {
     }
 })
 
-router.put('/:id', auth, async (req, res, next) => {
+router.put('/:id', auth, subtaskAuth, async (req, res, next) => {
     let changeOrder = !!req.query.order;
 
-    if (!changeOrder) {
-        const {
-            error
-        } = validateSubtaskPut(req.body);
-        if (error) return res.status(400).send(error.details[0].message);
-    }
+    const { error } = validateSubtaskPut(req.body, changeOrder);
+    if (error) return res.status(400).send(error.details[0].message);
 
     try {
-        let userIdRequest = new sql.Request();
-        const userId = await userIdRequest
-            .query(`SELECT Categories.CategoryUserId AS uid FROM Categories
-            JOIN Tasks ON Categories.CategoryId = Tasks.TaskCategoryId
-            JOIN Subtasks ON Tasks.TaskId = Subtasks.SubtaskTaskId
-            WHERE Subtasks.SubtaskId = '${req.params.id}'`);
-        if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
-            return res.status(403).send(`Invalid user or task non-existent.`);
-        }
-
+        const request = new sql.Request();
         if (changeOrder) {
+            if (req.body.prev) {
+                const validPrevRequest = new sql.Request();
+                let validPrev = await validPrevRequest
+                    .query(`SELECT 1 FROM Subtasks WHERE SubtaskId = ${req.body.prev} SubtaskTaskId = ${req.user.id}`)
+                validPrev = validPrev.recordset[0];
+                if (!validPrev) return res.status(403).send('Unallowable "prev" value');
+            }
+
             await request
                 .input('SubtaskId', req.params.id)
                 .input('SubtaskPrev', sql.Int, req.body.prev)
                 .execute('UpdateSubtaskOrder')
             return res.send('Subtask order changed');
         }
-
-        let request = new sql.Request();
+      
         await request
-            .input('taskId', sql.Int, req.body.taskId)
             .input('desc', sql.NVarChar(1024), req.body.desc)
-            .input('completed', sql.Int, req.body.completed)
+            .input('completed', sql.Bit, Number(req.body.completed))
             .query(`UPDATE Subtasks
-                    SET SubtaskTaskId = @taskId, SubtaskDesc = @desc, SubtaskCompleted = @completed
+                    SET SubtaskDesc = @desc, SubtaskCompleted = @completed
                     WHERE SubtaskId = '${req.params.id}'`);
-        return res.send({id: req.params.id});
+        return res.send('Subtask updated');
 
     } catch (err) {
         next(err);
     }
 })
 
-router.delete('/:id', auth, async (req, res, next) => {
+router.delete('/:id', auth, subtaskAuth, async (req, res, next) => {
 
     try {
-        /*let userIdRequest = new sql.Request();
-        const userId = await userIdRequest
-            .query(`SELECT Categories.CategoryUserId AS uid FROM Categories
-                    JOIN Tasks on Tasks.TaskCategoryId = Categories.CategoryId
-                    WHERE Tasks.TaskId = '${req.params.id}'`);
-        if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
-            res.status(403).send(`Cannot delete another user's subtask`);
-        }*/
-        let request = new sql.Request();
-
+        const request = new sql.Request();
         await request
             .input('SubtaskId', req.params.id)
             .execute('DeleteSubtask');
-        return res.send({
-            id: req.params.id
-        });
+        return res.send('Subtask deleted');
     } catch (err) {
         next(err)
     }
@@ -112,13 +92,17 @@ function validateSubtask(subtask) {
     return Joi.validate(subtask, schema);
 }
 
-function validateSubtaskPut(subtask) {
-    const schema = {
-        taskId: Joi.number().integer().required(),
-        desc: Joi.string().required(),
-        completed: Joi.number().required(),
-        prev: Joi.number().optional(),
-    };
+function validateSubtaskPut(subtask, changeOrder) {
+    let schema
+    if (changeOrder) {
+        schema = { prev: Joi.number().integer().allow(null).required() };      
+    }
+    else {
+        schema = {
+            desc: Joi.string().required(),
+            completed: Joi.boolean().required(),
+        };
+    }
     return Joi.validate(subtask, schema);
 }
 

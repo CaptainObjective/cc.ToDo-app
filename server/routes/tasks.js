@@ -2,6 +2,7 @@ const express = require('express');
 const sql = require('mssql');
 const Joi = require('joi');
 const auth = require('../middleware/auth');
+const taskAuth = require('../middleware/taskAuth');
 
 const router = express.Router();
 
@@ -10,18 +11,19 @@ router.post('/', auth, async (req, res, next) => {
     if (error) return res.status(400).send(error.details[0].message);
 
     try {
-        let userIdRequest = new sql.Request();
+        const userIdRequest = new sql.Request();
         let userId = await userIdRequest
                     .query(`SELECT CategoryUserId AS uid FROM Categories WHERE CategoryId = '${req.body.categoryId}'`);
         if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
-            res.status(403).send(`Cannot create tasks for another user`);
+            res.status(403).send('Access denied or category non-existent');
         }
-                        
-        let request = new sql.Request();
+        
+        let deadline = req.body.deadline ? new Date(req.body.deadline) : null;
+        const request = new sql.Request();
         let id = await request
             .input('TaskCategoryId', sql.Int, req.body.categoryId)
             .input('TaskDesc', sql.NVarChar(1024), req.body.desc)
-            .input('TaskDeadline', sql.DateTime, new Date(req.body.deadline))
+            .input('TaskDeadline', sql.DateTime2, deadline)
             .input('TaskExp', sql.Int, req.body.exp)
             .output('TaskId', sql.Int)
             .execute(`InsertTask`);
@@ -33,27 +35,23 @@ router.post('/', auth, async (req, res, next) => {
     }
 })
 
-router.put('/:id', auth, async (req, res, next) => {
+router.put('/:id', auth, taskAuth, async(req, res, next) => {
     let changeOrder = !!req.query.order;
 
-    if(!changeOrder) {
-        const {
-            error
-        } = validateTaskPut(req.body);
-        if (error) return res.status(400).send(error.details[0].message);
-    }
+    const { error } = validateTaskPut(req.body, changeOrder);
+    if (error) return res.status(400).send(error.details[0].message);
 
     try {
-        let userIdRequest = new sql.Request();
-        const userId = await userIdRequest
-            .query(`SELECT Categories.CategoryUserId AS uid FROM Categories
-                            JOIN Tasks on Tasks.TaskCategoryId = Categories.CategoryId
-                            WHERE Tasks.TaskId = '${req.params.id}'`);
-        if (!userId.recordset[0] || userId.recordset[0].uid != req.user.id) {
-            return res.status(403).send(`Invalid user or task non-existent.`);
-        }
-
+        const request = new sql.Request();
         if(changeOrder) {
+            if (req.body.prev) {
+                const validPrevRequest = new sql.Request();
+                let validPrev = await validPrevRequest
+                    .query(`SELECT 1 FROM Tasks WHERE TaskId = ${req.params.id} TaskUserId = '${req.user.id}'`)
+                validPrev = validPrev.recordset[0];
+                if (!validPrev) return res.status(401).send('Unallowable "prev" value');
+            }
+
             let request = new sql.Request();
             await request
                 .input('TaskId', req.params.id)
@@ -62,72 +60,79 @@ router.put('/:id', auth, async (req, res, next) => {
             return res.send('Task order changed');
         }
 
-        let isCompletedRequest = new sql.Request();
-        const isCompleted = await isCompletedRequest
-                                .query(`SELECT TaskCompleted FROM Tasks
-                                        WHERE TaskId = ${req.params.id}`);
+        const validCategoryRequest = new sql.Request();
+        validCategory = await validCategoryRequest
+            .query(`SELECT 1 FROM Categories WHERE CategoryId = ${req.body.categoryId} AND CategoryUserId = ${req.user.id}`)
+        validCategory = validCategory.recordset[0];
+        if (!validCategory) return res.status(403).send('Access denied or category non-existent');
 
-        if(Boolean(Number(!isCompleted.recordset[0].TaskCompleted && req.body.completed))) {
-            let updateExp = new sql.Request();
-            await updateExp.query(`UPDATE Users
-                                    SET UserExp = UserExp + ${req.body.exp}
-                                    WHERE UserId = ${req.user.id}`);
+        const taskRequest = new sql.Request();
+        let task = await taskRequest
+                    .query(`SELECT TaskCategoryId, TaskCompleted FROM Tasks
+                            WHERE TaskId = ${req.params.id}`);
+        task = task.recordset[0];
+
+        if (task.TaskCategoryId !== Number(req.body.categoryId)) {
+            //UpdateTaskCategory
         }
 
-        let request = new sql.Request();
-        await request
-            .input('categoryId', sql.Int, req.body.categoryId)
-            .input('desc', sql.NVarChar(1024), req.body.desc)
-            .input('deadline', sql.DateTime, new Date(req.body.deadline))
-            .input('exp', sql.Int, req.body.exp)
-            .input('completed', sql.Int, req.body.completed)
-            .query(`UPDATE Tasks
-                    SET TaskCategoryId = @categoryId, TaskDesc = @desc, TaskDeadline = @deadline, TaskCompleted = @completed, TaskExp = @exp
-                    WHERE TaskId = '${req.params.id}'`);
+        if (task.TaskCompleted !== Boolean(req.body.completed)) {
+            const updateExp = new sql.Request();
+            if (req.body.completed) {
+                await updateExp.query(`UPDATE Users
+                                        SET UserCurrentExp = UserCurrentExp + ${req.body.exp}
+                                        WHERE UserId = ${req.user.id}`);
+            }
+            else {
+                await updateExp.query(`UPDATE Users
+                                        SET UserCurrentExp = UserCurrentExp - ${req.body.exp}
+                                        WHERE UserId = ${req.user.id}`);
+            }
 
-        
-        let expRequest = new sql.Request();
-        let exp = await expRequest.query(`SELECT UserExp FROM Users
-                                                WHERE UserId = ${req.user.id}`);
-        exp = exp.recordset[0].UserExp;
-
-        let updateLevel = new sql.Request();
-        await updateLevel.query(`UPDATE Users
-                                    SET UserLevel = (SELECT MAX(LevelNum) FROM Levels WHERE LevelExp <= ${exp})
-                                    WHERE UserId = ${req.user.id}`);
-
-        let levelRequest = new sql.Request();
-        let level = await levelRequest.query(`SELECT UserLevel FROM Users
+            const expRequest = new sql.Request();
+            exp = await expRequest.query(`SELECT UserCurrentExp FROM Users
                                             WHERE UserId = ${req.user.id}`);
-        level = level.recordset[0].UserLevel;
+            exp = exp.recordset[0].UserCurrentExp;
 
-        let nextLevelExpRequest = new sql.Request();
-        let nextLevelExp = await nextLevelExpRequest.query(`SELECT MIN(LevelExp) AS LevelExp FROM Levels WHERE LevelExp > ${exp}`);
-        nextLevelExp = nextLevelExp.recordset[0].LevelExp;
-        return res.send({level: level, currentExp: exp, remainingExp: nextLevelExp - exp});
+            const updateUserequest = new sql.Request();
+            await updateUserequest.query(`UPDATE Users
+                                        SET UserLevel = (SELECT MAX(LevelNum) FROM Levels WHERE LevelExp <= ${exp}),
+                                            UserRemainingExp = (SELECT MIN(LevelExp) FROM Levels WHERE LevelExp > ${exp})-${exp}
+                                        WHERE UserId = ${req.user.id}`);
+        }
 
+        let deadline = req.body.deadline ? new Date(req.body.deadline) : null;       
+        await request
+            .input('desc', sql.NVarChar(1024), req.body.desc)
+            .input('deadline', sql.DateTime, deadline)
+            .input('exp', sql.Int, req.body.exp)
+            .input('completed', sql.Bit, Number(req.body.completed))
+            .query(`UPDATE Tasks
+                    SET TaskDesc = @desc, TaskDeadline = @deadline, TaskCompleted = @completed, TaskExp = @exp
+                    WHERE TaskId = '${req.params.id}'`);     
+
+        const userRequest = new sql.Request();
+        let user = await userRequest
+                        .query(`SELECT UserLevel, UserCurrentExp, UserRemainingExp FROM Users WHERE UserId = ${req.user.id}`);
+        user = user.recordset[0]
+        
+        return res.send({
+            level: user.UserLevel,
+            currentExp: user.UserCurrentExp,
+            remainingExp: user.UserRemainingExp
+        });
     } catch (err) {
         next(err);
     }
 })
 
-router.delete('/:id', auth, async (req, res, next) => {
-
+router.delete('/:id', auth, taskAuth, async(req, res, next) => {
     try {
-        let userIdRequest = new sql.Request();
-        const userId = await userIdRequest
-                            .query(`SELECT Categories.CategoryUserId AS uid FROM Categories
-                            JOIN Tasks on Tasks.TaskCategoryId = Categories.CategoryId
-                            WHERE Tasks.TaskId = '${req.params.id}'`);
-        if(!userId.recordset[0].uid || userId.recordset[0].uid != req.user.id) {
-            res.status(403).send(`Cannot delete another user's tasks`);
-        }
-        let request = new sql.Request();
-
+        const request = new sql.Request();
         await request
             .input('TaskId', req.params.id)
             .execute('DeleteTask');
-        return res.send({id: req.params.id});
+        return res.send('Task deleted');
     } catch (err) {
         next(err)
     }
@@ -137,21 +142,26 @@ function validateTask(task) {
     const schema = {
         categoryId: Joi.number().integer().required(),
         desc: Joi.string().required(),
-        deadline: Joi.date(),
+        deadline: Joi.date().allow(null).optional(),
         exp: Joi.number().integer().min(0).required()
     };
     return Joi.validate(task, schema);
 }
 
-function validateTaskPut(task) {
-    const schema = {
-        categoryId: Joi.number().integer().required(),
-        desc: Joi.string().required(),
-        deadline: Joi.date(),
-        exp: Joi.number().integer().min(0).required(),
-        completed: Joi.number().integer().required(),
-        prev: Joi.number().optional(),
-    };
+function validateTaskPut(task, changeOrder) {
+    let schema
+     if (changeOrder) {
+        schema = { prev: Joi.number().integer().allow(null).required() };      
+    }
+    else {
+        schema = {
+            categoryId: Joi.number().integer().required(),
+            desc: Joi.string().required(),
+            deadline: Joi.date().allow(null).optional(),
+            exp: Joi.number().integer().min(0).required(),
+            completed: Joi.boolean().required(),
+        };
+    }
     return Joi.validate(task, schema);
 }
 

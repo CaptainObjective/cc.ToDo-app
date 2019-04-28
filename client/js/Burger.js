@@ -5,51 +5,8 @@ class Burger {
 
         this._sidebar.innerHTML = `
         <div id='user-segment' class="ui vertical segment loading" style="min-height: 25vh">
-
         </div>
-        <div class="ui segment">
-            <h3 class="ui center aligned header">Dzisiejsze zadanie specjalne</h3>
-            <div class="ui cards">
 
-                <div class="card">
-                    <div class="content">
-                        <i class='bullhorn icon'></i>
-                        <div class="header">
-                            Pompuj!
-                        </div>
-                        <div class="meta">
-                            150 xp
-                        </div>
-                        <div class="description">
-                            Zrób 3 serie po 15 pompek.
-                        </div>
-                    </div>
-                    <div class="extra content">
-                        <div class="ui two buttons">
-                            <div class="ui two buttons">
-                                <div class="ui animated basic green button" tabindex="0">
-                                    <div class="visible content">
-                                        Akceptuj
-                                    </div>
-                                    <div class="hidden content">
-                                        <i class="thumbs up icon"></i>
-                                    </div>
-                                </div>
-                                <div class="ui animated fluid basic red button" tabindex="0">
-                                    <div class="visible content">
-                                        Odrzuć
-                                    </div>
-                                    <div class="hidden content">
-                                        <i class="thumbs down icon"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
         <div class="ui segment">
             <div id="logout" class="ui animated fluid basic grey button" tabindex="0">
                 <div class="visible content">
@@ -91,14 +48,14 @@ class Burger {
 
     userSegment(name, level, currentExp, remainingExp) {
         return `
-        <img style="margin-top: 40px" class="ui tiny centered circular image"
-            src="https://img.icons8.com/ios/50/000000/neutral-emoticon.png">
+        <img style="margin-top: 40px" class="ui small centered circular image"
+            src="https://i.some-random-api.ml/IC9sssLQyP.jpg">
         <h3 class="ui center aligned header">
             ${name}
         </h3>
-        <h5 class="ui center aligned header">
+        <h4 class="ui center aligned header">
             Poziom ${level}
-        </h5>
+        </h4>
         <div class="ui segment item">
             <div class="ui teal progress" id="exp-bar">
                 <div class="bar"></div>
@@ -129,8 +86,9 @@ class Burger {
         return this._menuButton;
     }
 
-    setExp(currentExp, nextExp) {
-        document.querySelector('#exp-text').innerHTML = `${currentExp}/${nextExp} XP`
+    setExp(currentExp, remExp) {
+        const nexExp = currentExp + remExp;
+        document.querySelector('#exp-text').innerHTML = `${currentExp}/${nexExp} XP`
         $('#exp-bar').progress({
             percent: currentExp*100/nextExp
         });

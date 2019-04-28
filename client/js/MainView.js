@@ -14,7 +14,7 @@ class MainView {
         this._burger = new Burger();
         document.body.appendChild(this._burger.render());
         this._burger.fillPusher(); //pakuje cały content do pushera
-        this._burger.setExp(246,895);
+        //this._burger.updateBurger();
         //
 
         this._container.innerHTML = `

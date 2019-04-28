@@ -15,7 +15,7 @@ router.post('/', async (req, res, next) => {
         let user = await userRequest
             .query(`SELECT 1 FROM Users WHERE UserEmail = '${req.body.email}'`);
         user = user.recordset[0];
-        if (user) return res.status(400).send('User already registered.');
+        if (user) return res.status(400).send('User already registered');
 
         const salt = await bcrypt.genSalt(10);
         const passwd = await bcrypt.hash(req.body.passwd, salt);
@@ -31,7 +31,7 @@ router.post('/', async (req, res, next) => {
             .input('email', sql.NVarChar(50), req.body.email)
             .input('passwd', sql.NVarChar(1024), passwd)
             .query(`INSERT INTO Users (UserName, UserEmail, UserPasswd, UserLevel, UserCurrentExp, UserRemainingExp) VALUES (@name, @email, @passwd, 1, 0, ${remainingExp})`);
-        return res.send('User was created.');
+        return res.send('User was created');
     } catch (err) {
         next(err)
     }
@@ -46,7 +46,7 @@ router.put('/me', auth, async (req, res, next) => {
         let user = await userRequest
             .query(`SELECT UserPasswd FROM Users WHERE UserId = '${req.user.id}'`)
         user = user.recordset[0];
-        if (!user) return res.status(404).send('User does not exist.');
+        if (!user) return res.status(404).send('User does not exist');
 
         let passwd; 
         if (req.body.passwd) {
@@ -60,7 +60,7 @@ router.put('/me', auth, async (req, res, next) => {
             .input('name', sql.NVarChar(50), req.body.name)
             .input('email', sql.NVarChar(50), req.body.email)
             .query(`UPDATE Users SET UserName = @name, UserEmail = @email, UserPasswd = '${passwd}' WHERE UserId = ${req.user.id}`);
-        return res.send('User was updated.');
+        return res.send('User was updated');
     } catch (err) {
         next(err)
     }
@@ -71,7 +71,7 @@ router.delete('/me', auth, async (req, res, next) => {
         const request = new sql.Request();
         await request
             .query(`DELETE FROM Users WHERE UserId = ${req.user.id}`)
-        return res.send('User was deleted.');
+        return res.send('User was deleted');
     } catch (err) {
         next(err)
     }

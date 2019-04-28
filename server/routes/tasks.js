@@ -42,17 +42,20 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
     if (error) return res.status(400).send(error.details[0].message);
 
     try {
-        const request = new sql.Request();
+        const transaction = new sql.Transaction()
+        await new Promise(resolve => transaction.begin(resolve));
+        const request = new sql.Request(transaction);
+
         if(changeOrder) {
             if (req.body.prev) {
-                const validPrevRequest = new sql.Request();
+                const validPrevRequest = new sql.Request(transaction);
                 let validPrev = await validPrevRequest
                     .query(`SELECT 1 FROM Tasks WHERE TaskId = ${req.params.id} TaskUserId = '${req.user.id}'`)
                 validPrev = validPrev.recordset[0];
                 if (!validPrev) return res.status(401).send('Unallowable "prev" value');
             }
 
-            let request = new sql.Request();
+            let request = new sql.Request(transaction);
             await request
                 .input('TaskId', req.params.id)
                 .input('TaskPrev', sql.Int, req.body.prev)
@@ -60,7 +63,7 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
             return res.send('Task order changed');
         }
 
-        const validCategoryRequest = new sql.Request();
+        const validCategoryRequest = new sql.Request(transaction);
         validCategory = await validCategoryRequest
             .query(`SELECT 1 FROM Categories WHERE CategoryId = ${req.body.categoryId} AND CategoryUserId = ${req.user.id}`)
         validCategory = validCategory.recordset[0];
@@ -73,32 +76,38 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
         task = task.recordset[0];
 
         if (task.TaskCategoryId !== Number(req.body.categoryId)) {
-            //UpdateTaskCategory
+            const updateTaskCategoryRequest = new sql.Request(transaction);
+            await updateTaskCategoryRequest
+                    .input('TaskId', sql.Int, req.params.id)
+                    .input('TaskCategoryId', sql.Int, req.body.categoryId)
+                    .execute('UpdateTaskCategory');
         }
 
         if (task.TaskCompleted !== Boolean(req.body.completed)) {
-            const updateExp = new sql.Request();
+            const updateExp = new sql.Request(transaction);
             if (req.body.completed) {
-                await updateExp.query(`UPDATE Users
-                                        SET UserCurrentExp = UserCurrentExp + ${req.body.exp}
-                                        WHERE UserId = ${req.user.id}`);
+                await updateExp
+                        .query(`UPDATE Users
+                                SET UserCurrentExp = UserCurrentExp + ${req.body.exp}
+                                WHERE UserId = ${req.user.id}`);
             }
             else {
-                await updateExp.query(`UPDATE Users
-                                        SET UserCurrentExp = UserCurrentExp - ${req.body.exp}
-                                        WHERE UserId = ${req.user.id}`);
+                await updateExp
+                        .query(`UPDATE Users
+                                SET UserCurrentExp = UserCurrentExp - ${req.body.exp}
+                                WHERE UserId = ${req.user.id}`);
             }
 
-            const expRequest = new sql.Request();
-            exp = await expRequest.query(`SELECT UserCurrentExp FROM Users
-                                            WHERE UserId = ${req.user.id}`);
+            const expRequest = new sql.Request(transaction);
+            exp = await expRequest.query(`SELECT UserCurrentExp FROM Users WHERE UserId = ${req.user.id}`);
             exp = exp.recordset[0].UserCurrentExp;
 
-            const updateUserequest = new sql.Request();
-            await updateUserequest.query(`UPDATE Users
-                                        SET UserLevel = (SELECT MAX(LevelNum) FROM Levels WHERE LevelExp <= ${exp}),
-                                            UserRemainingExp = (SELECT MIN(LevelExp) FROM Levels WHERE LevelExp > ${exp})-${exp}
-                                        WHERE UserId = ${req.user.id}`);
+            const updateUserequest = new sql.Request(transaction);
+            await updateUserequest
+                    .query(`UPDATE Users
+                            SET UserLevel = (SELECT MAX(LevelNum) FROM Levels WHERE LevelExp <= ${exp}),
+                                UserRemainingExp = (SELECT MIN(LevelExp) FROM Levels WHERE LevelExp > ${exp})-${exp}
+                            WHERE UserId = ${req.user.id}`);
         }
 
         let deadline = req.body.deadline ? new Date(req.body.deadline) : null;       
@@ -111,11 +120,13 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
                     SET TaskDesc = @desc, TaskDeadline = @deadline, TaskCompleted = @completed, TaskExp = @exp
                     WHERE TaskId = '${req.params.id}'`);     
 
-        const userRequest = new sql.Request();
+        const userRequest = new sql.Request(transaction);
         let user = await userRequest
                         .query(`SELECT UserLevel, UserCurrentExp, UserRemainingExp FROM Users WHERE UserId = ${req.user.id}`);
         user = user.recordset[0]
-        
+
+        await transaction.commit();
+
         return res.send({
             level: user.UserLevel,
             currentExp: user.UserCurrentExp,

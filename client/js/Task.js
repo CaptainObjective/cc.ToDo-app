@@ -29,6 +29,7 @@ class Task {
         this._taskHeader.appendChild(this._taskIsCompletedCheckbox);
         this._taskHeaderTitle.onclick = this.showTaskDetailsWindow.bind(this);
         this._TaskDeleteButton.onclick = this._parent._deleteTask.bind(this);
+        this._taskIsCompletedCheckbox.addEventListener('change', this.checkCompleted.bind(this));
     }
 
     render() {
@@ -75,6 +76,33 @@ class Task {
         this._taskHeaderTitle.innerText = this._taskName;
         this._taskHeaderTitle.hidden = false;
         form.remove()
+    }
+
+    async checkCompleted() {
+        const token = sessionStorage.getItem('x-token');
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            'x-token': token
+        };
+        const requestBody = {
+            categoryId: this._parent.id,
+            desc: this._taskDesc,
+            deadline: this.taskDeadlineDate,
+            exp: this._taskExp,
+            completed: this.completed
+        };
+        try {
+            const response = await fetch(`/tasks/${this._taskId}`, {
+                method: "put",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
+            })
+            if (response.status !== 200) throw response;
+            // taskFromServer = await response.json();
+        } catch (error) {
+            alert("Nie udało się połączyć z serwerem!");
+            return;
+        }
     }
 
     async showTaskDetailsWindow() {

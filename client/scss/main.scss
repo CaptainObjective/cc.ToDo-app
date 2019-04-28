@@ -9,17 +9,31 @@ body {
 }
 
 button {
-    cursor: pointer;
+    cursor: pointer !important;
+}
+
+.buttons-wrapper {
+    margin: 1vh;
+}
+
+.category-wrapper {
+    display: flex !important;
+    justify-content: space-around;
+    flex-wrap: wrap;
 }
 
 .category {
+    margin: 2vw !important;
     background: #fff;
-    width: 300px;
-    height: 700px;
+    min-width: 20vw;
+    height: 70vh;
 
     &-header {
+        position: relative;
         display: flex;
-        height: 200px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        height: 15%;
         background-color: darken($color: $primary, $amount: 40%);
 
         &-title.active {
@@ -45,8 +59,8 @@ button {
     }
 }
 
-.delete-popup{
-    position: fixed;
+.delete-popup {
+    position: absolute !important;
     top: 0;
     left: 0;
     z-index: 100;

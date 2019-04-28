@@ -2,7 +2,8 @@ import MainView from "./MainView"
 
 class Login {
     constructor() {
-        this._passLength = 8;
+        this._passLength = 6;
+        this._nameLength = 3;
         this._text = {
             email: "Adres e-mail",
             reEmail: "Potwierdź adres e-mail",
@@ -16,12 +17,15 @@ class Login {
             signUp: "Nie mam konta",
             "login-email-error": "Błędny adres e-mail",
             "login-password-error": "Hasło powinno zawierać wielką literę, liczbę i znak specjalny",
-            "login-password-error-short": `Hasło powinno mieć więcej niż ${this._passLength} znaków`,
+            "login-password-error-short": `Hasło powinno mieć przynajmniej ${this._passLength} znaków`,
             "login-reEmail-error": "Podane adresy różnią się",
             "login-rePassword-error": "Hasła różnią się",
+            "login-name-error": `Imie powino mieć przynajmniej ${this._nameLength} znaki`,
             registerSuccess: "Konto zostało założone. Na twój adres e-mail została wysłana wiadomość z linkiem potwierdzającym podany adres e-mail.",
             retrievePasswordSuccess: "Proces przywracania hasła rozpoczęty. Na twój adres e-mail została wysłana wysłana wiadomość z dalszymi instrukcjami.",
             retrievePasswordFailure: "Nie istnieje konto przypisane do podanego adresu e-mail.",
+            loginFailure: "Błędny login lub hasło.",
+            registerEmailUsed: "Konto przypisane do podanego adresu e-mail już istnieje.",
             serverDown: "Nie można połączyć z serwerem. Spróbuj ponownie później."
         };
         this._flags = {
@@ -31,6 +35,7 @@ class Login {
             sameEmails: false,
             correctPassword: false,
             samePasswords: false,
+            correctName: false,
             isRegisterCreated: false,
         };
         this._form = document.createElement("form");
@@ -61,35 +66,43 @@ class Login {
 
     render() {
         // this._form.parentElement.removeChild(this._form);
-        const user =
-        {
-            userId: 1,
-            name: "user1",
-            email: "user1@gmail.com",
-            exp: 0,
-            level: 1,
-            categories:
-                [
-                    {
-                        id: 1,
-                        name: "home",
-                        prev: null,
-                        next: null,
-                        tasks: null
-                    }
-                ]
-        }
-        const mainView = new MainView(user);
-        document.querySelector("#main").appendChild(mainView.render());
+        // const user = {
+        //     userId: 1,
+        //     name: "user1",
+        //     email: "user1@gmail.com",
+        //     exp: 0,
+        //     level: 1,
+        //     categories: [{
+        //         id: 1,
+        //         name: "home",
+        //         prev: null,
+        //         next: null,
+        //         tasks: [{
+        //             taskId: 1,
+        //             taskCategoryId: 1,
+        //             taskName: "pierwszy",
+        //             taskCreatedDate: new Date(),
+        //             taskDeadlineDate: null,
+        //             taskCompleted: false,
+        //             taskExp: null,
+        //             prev: null,
+        //             taskDesc: "opis testowy"
+        //         }]
+        //     }]
+        // }
+        // const mainView = new MainView(user);
+        // document.querySelector("#main").appendChild(mainView.render());
         return this._form;
     }
 
-    _clearAllInputs()
-    {
-        [...this._form.querySelectorAll("*")].forEach(el => {if (el.value && (el.classList.contains("login-input"))) el.value = ""});
-        if(this._flags.isNewMemberChecked)
-        {
-            this._backArrow.addEventListener('click', this._changeToRegister.bind(this), { once: true });
+    _clearAllInputs() {
+        [...this._form.querySelectorAll("*")].forEach(el => {
+            if (el.value && (el.classList.contains("login-input"))) el.value = ""
+        });
+        if (this._flags.isNewMemberChecked) {
+            this._backArrow.addEventListener('click', this._changeToRegister.bind(this), {
+                once: true
+            });
             this._newMember.checked = false;
         }
     }
@@ -182,7 +195,7 @@ class Login {
         if (!input.value) {
             errorText.innerText = "Pole wymagane";
         } else {
-            if (altMessage === undefined) errorText.innerText = this._text[`${input.id}-error${!(input === this._password && input.value.length < this._passLength)?"":"-short"}`];
+            if (altMessage === undefined) errorText.innerText = this._text[`${input.id}-error${!(input === this._password && input.value.length < this._passLength) ? "" : "-short"}`];
             else errorText.innerText = altMessage;
         }
         this._form.insertBefore(errorText, input);
@@ -239,47 +252,49 @@ class Login {
         event.preventDefault();
         if (!this._submit || this._submit.disabled) return;
         const requestBody = {};
-        let apiUrl;
+        let apiUrl = "";
         if (!this._flags.isNewMemberChecked) {
-            apiUrl = "/login";
-        }
-        else {
-            apiUrl = "/users"
+            apiUrl += "/login";
+        } else {
+            apiUrl += "/users"
             requestBody.name = this._name.value;
         }
         requestBody.email = this._email.value;
         requestBody.passwd = this._password.value;
         try {
-            const res = await fetch(apiUrl,
-                {
-                    method: "post",
-                    headers: { "Content-type": "application/json; charset=UTF-8" },
-                    body: JSON.stringify(requestBody)
-                });
-            // const response = await res.json();
-            // if (response.status !== 200) throw response;
-            if(!this._flags.isNewMemberChecked)
-            {
+            let response = await fetch(apiUrl, {
+                method: "post",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+            if (response.status !== 200) throw response;
+            if (!this._flags.isNewMemberChecked) {
+                response = await response.json();
+                sessionStorage.setItem("x-token", response.token);
                 this._form.parentElement.removeChild(this._form);
-                // new MainView(response.body);
-            }
-            else
-            {
+                const mainView = new MainView(response);
+                document.querySelector("#main").appendChild(mainView.render());
+            } else {
                 this._showMessage(this._text.registerSuccess);
                 this._neutralizeAllInputs();
                 this._clearAllInputs();
             }
-            
-            //obsługa logowania
-        }
-        catch (error) {
-            console.log(error);
-            this._showMessage(this._text.serverDown);
-            this._clearAllInputs();
-            this._neutralizeAllInputs();
+        } catch (error) {
+            const {
+                status
+            } = error;
+            console.log(error); // do usunięcia przed wrzuceniem na serwer
+            let feedBack = "";
+            if (status === undefined) feedBack = this._text.serverDown;
+            else if (!this._flags.isNewMemberChecked) {
+                if (status === 400 || status === 404) feedBack = this._text.loginFailure;
+                else feedBack = this._text.serverDown;
+            } else if (status === 400) feedBack = this._text.registerEmailUsed;
+            else feedBack = this._text.serverDown;
 
-            console.log(error);
-            // obsługa błędu w zależności od rodzaju błędu
+            this._showMessage(feedBack);
         }
     }
 
@@ -319,24 +334,51 @@ class Login {
         } else if (input === this._rePassword) {
             if (this._flags.samePasswords) this._inputGood(input);
             else this._inputWrong(input);
+        } else if (input === this._name) {
+            if (this._flags.correctName) this._inputGood(input);
+            else this._inputWrong(input);
         } else this._inputGood(input);
     }
 
     _verifyInputs() {
         this._flags.filledInputs = ![...this._form.getElementsByClassName("login-input")].some((el) => el.value === "");
         this._flags.correctEmail = !!this._email.value.match(/.+@.+\..+/gi);
-        this._flags.correctPassword = !!(this._password.value && (this._password.value && (this._password.value.length >= 8 && !!this._password.value.match(/.*[0-9].*/gi) && !!this._password.value.match(/([!-/]|[:-@]|[\[-`]|[{-~])/gi) && !!this._password.value.match(/[A-Z]/g))));
+        this._flags.correctPassword = !!(this._password.value && (this._password.value && (this._password.value.length >= this._passLength && !!this._password.value.match(/.*[0-9].*/gi) && !!this._password.value.match(/([!-/]|[:-@]|[\[-`]|[{-~])/gi) && !!this._password.value.match(/[A-Z]/g))));
         if (this._flags.isNewMemberChecked) {
             this._flags.filledInputs = ![...this._form.getElementsByClassName("login-input")].some((el) => el.value === "");
             this._flags.sameEmails = (this._email.value === this._reEmail.value);
             this._flags.samePasswords = (this._password.value === this._rePassword.value);
+            this._flags.correctName = !!(this._name.value.length && this._name.value.length >= this._nameLength);
         } else {
             this._flags.filledInputs = ![...this._form.getElementsByClassName("login-input")].filter(el => !el.classList.contains("login-added")).some((el) => el.value === "");
-            this._flags.sameEmails = this._flags.samePasswords = true;
+            this._flags.sameEmails = this._flags.samePasswords = this._flags.correctName = true;
         }
         this._submitOnOff.call(this);
-
     }
+
+    async autoLogin(token)
+    {
+        try
+        {    
+            let response = await fetch("/users/me", 
+                {
+                    method: "get",
+                    headers:
+                    {
+                        "x-token": token,
+                    }
+                });
+            if (response.status !== 200) throw response;
+            response = await response.json();
+            const user = { user: response.userWithDetails};
+            const mainView = new MainView(user);
+            document.querySelector("#main").appendChild(mainView.render());
+        }
+        catch (error)
+        {
+            console.log(error);
+        }  
+    }   
 }
 
 export default Login;

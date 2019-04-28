@@ -64,13 +64,6 @@ class MainView {
             this._showArchivedCategories();
         });
 
-        this.helpfullButton = this._addButtonNewCategory();
-        this._listWrapper.appendChild(this.helpfullButton);
-        this.helpfullButton.classList.add("login-button");
-        this.helpfullButton.innerText = "Move";
-        this.helpfullButton.addEventListener('click', () => {
-            this._moveCategory(this._categoriesList[0], this._categoriesList.length -1);
-        });
 
         this._categoryWrapper = document.createElement('div');
         this._categoryWrapper.className = 'category-wrapper ui container">';

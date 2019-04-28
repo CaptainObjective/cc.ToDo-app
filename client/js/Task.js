@@ -9,6 +9,7 @@ class Task {
         this._index = obiect.taskIndex;
         this._taskExp = 1;
         this._taskDesc = obiect.taskName;
+        this._completed = false;
         this._task = document.createElement('div');
         this._task.classList.add('task');
         this._taskHeader = document.createElement('div');

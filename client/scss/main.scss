@@ -1,6 +1,13 @@
 @import 'variables.scss';
 @import 'mixins.scss';
 
+.drag
+{
+    position: relative;
+    transform: rotateZ(20deg);
+    background-color: red !important;
+}
+
 body {
     // background-image:url("../assets/test.jpg");
     background: $primary;

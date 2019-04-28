@@ -373,10 +373,12 @@ class Login {
             const user = { user: response.userWithDetails};
             const mainView = new MainView(user);
             document.querySelector("#main").appendChild(mainView.render());
+            return true;
         }
         catch (error)
         {
             console.log(error);
+            throw false;
         }  
     }   
 }

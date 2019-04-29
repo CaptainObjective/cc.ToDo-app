@@ -2,19 +2,17 @@ import Category from './Category'
 import Burger from './Burger';
 import Sortable from 'sortablejs'
 
-Array.prototype.sortByPrevAndId = function()
-    {
-        if(this.length === 0) return this;
+Array.prototype.sortByPrevAndId = function() {
+    if (this.length === 0) return this;
 
-        const tempList = [];
-        tempList.push(this.find(el => el.prev === null));
-        for(let i = 1; i < this.length; i++)
-        {
-            tempList.push(this.find(el => el.prev === tempList[i-1].id));
-        }
-        this.splice(0, this.length, ...tempList);
-        return this;
+    const tempList = [];
+    tempList.push(this.find(el => el.prev === null));
+    for (let i = 1; i < this.length; i++) {
+        tempList.push(this.find(el => el.prev === tempList[i - 1].id));
     }
+    this.splice(0, this.length, ...tempList);
+    return this;
+}
 
 class MainView {
     constructor({
@@ -70,8 +68,8 @@ class MainView {
         this.activedButton.addEventListener('click', () => {
             this._showActiveCategories();
         });
-        
-        
+
+
         this.archivedButton = this._addButtonNewCategory();
         this._buttonsWrapper.appendChild(this.archivedButton);
         this.archivedButton.classList.add("login-button");
@@ -157,7 +155,7 @@ class MainView {
     _showInputName() {
         if (document.getElementById('add-category-input')) return;
         const formName = MainView.createInputName();
-        this._container.appendChild(formName);
+        this._buttonsWrapper.appendChild(formName);
         formName.children[0].focus();
         formName.children[1].addEventListener('click', this._createNewCategory.bind(this));
         formName.children[0].focus();
@@ -202,18 +200,16 @@ class MainView {
         input.parentElement.remove();
     }
 
-    async _moveCategory(category, newIndex)
-    {
+    async _moveCategory(category, newIndex) {
         if (!Number.isInteger(newIndex) || category.index === newIndex || newIndex > this._categoriesList.length - 1 || newIndex < 0) return;
-        try
-        {
+        try {
             const tempList = [...this._categoriesList];
             tempList.splice(category.index, 1);
             tempList.splice(newIndex, 0, category);
             const oldIndex = category.index;
-            
-            const prevList = tempList.map((el, index) => index ? tempList[index-1].id : null);
-            
+
+            const prevList = tempList.map((el, index) => index ? tempList[index - 1].id : null);
+
             const requestHeaders = {
                 'Content-Type': 'application/json',
                 "x-token": this._token
@@ -221,25 +217,22 @@ class MainView {
             const requestBody = {
                 prev: prevList[newIndex]
             };
-            let response = await fetch(`/categories/${category.id}?order=true`,
-                {
-                    method: "put",
-                    headers: requestHeaders,
-                    body: JSON.stringify(requestBody)
+            let response = await fetch(`/categories/${category.id}?order=true`, {
+                method: "put",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
 
-                })
+            })
             if (response.status !== 200) throw response;
 
             this._categoriesList = tempList;
             this._categoriesList.forEach((cat, index) => cat.index = index);
             this._reload();
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.log(error);
         }
     }
-    
+
 
     _createCategoryFromServer(catFromServer, index) {
         const category = new Category({
@@ -255,8 +248,7 @@ class MainView {
         this._categoryWrapper.appendChild(category.render());
     }
 
-    _createArchivedCategoryFromServer(catFromServer, index)
-    {
+    _createArchivedCategoryFromServer(catFromServer, index) {
         const category = new Category({
             parent: this,
             id: catFromServer.id,
@@ -284,8 +276,7 @@ class MainView {
         this._showList(this._categoriesList);
     }
 
-    _reload()
-    {
+    _reload() {
         if (this._isArchivedShown) this._showList(this._archivedCategoriesList);
         else this._showList(this._categoriesList);
     }
@@ -298,92 +289,80 @@ class MainView {
 
 
     async archiveCategory(category) {
-        try
-        {
-            const response = await fetch(`/categories/${category.id}`,
-                {
-                    method: "put",
-                    headers:
-                    {
-                        'Content-Type': 'application/json',
-                        "x-token": this._token
-                    },
-                    body: JSON.stringify( {name: category.name, archived: true})
+        try {
+            const response = await fetch(`/categories/${category.id}`, {
+                method: "put",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "x-token": this._token
+                },
+                body: JSON.stringify({
+                    name: category.name,
+                    archived: true
                 })
+            })
             if (response.status !== 200) throw response;
 
             this._archivedCategoriesList.push(...this._categoriesList.splice(category.index, 1));
             category.archive();
             category.index = this._archivedCategoriesList.length - 1;
             this._categoriesList.forEach((category, index) => category.index = index);
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.log(error);
         }
     }
-        
+
     async restoreCategory(category) {
-        try
-        {
-            const response = await fetch(`/categories/${category.id}`,
-                {
-                    method: "put",
-                    headers:
-                    {
-                        'Content-Type': 'application/json',
-                        "x-token": this._token
-                    },
-                    body: JSON.stringify( {name: category.name, archived: false})
+        try {
+            const response = await fetch(`/categories/${category.id}`, {
+                method: "put",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "x-token": this._token
+                },
+                body: JSON.stringify({
+                    name: category.name,
+                    archived: false
                 })
+            })
             if (response.status !== 200) throw response;
 
             this._categoriesList.push(...this._archivedCategoriesList.splice(category.index, 1));
             category.restore();
             category.index = this._categoriesList.length - 1;
             this._archivedCategoriesList.forEach((category, index) => category.index = index);
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.log(error);
         }
     }
 
     async deleteCategory(category) {
-        try
-        {
-            const response = await fetch(`/categories/${category.id}`,
-                {
-                    method: "delete",
-                    headers:
-                    {
-                        'Content-Type': 'application/json',
-                        "x-token": this._token
-                    }
-                })
+        try {
+            const response = await fetch(`/categories/${category.id}`, {
+                method: "delete",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "x-token": this._token
+                }
+            })
             if (response.status !== 200) throw response;
 
             this._archivedCategoriesList.splice(category.index, 1);
             category.render().remove();
             this._archivedCategoriesList.forEach((category, index) => category.index = index);
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.log(error);
         }
     }
 
-    _enableMoving()
-    {
-        new Sortable(this._categoryWrapper,
-            {
-                group: "mainView",
-                animation: 150,
-                onEnd: (evt) =>
-                    {
-                        this._moveCategory(evt.item.parent, evt.newIndex)
-                    }
-            })
+    _enableMoving() {
+        new Sortable(this._categoryWrapper, {
+            group: "mainView",
+            animation: 150,
+            onEnd: (evt) => {
+                this._moveCategory(evt.item.parent, evt.newIndex)
+            }
+        })
     }
 }
 

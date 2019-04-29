@@ -11,7 +11,7 @@ class Task {
         this._taskDesc = obiect.taskName;
         this._completed = false;
         this._task = document.createElement('div');
-        this._task.classList.add('task');
+        this._task.className = 'ui segment task';
         this._task.parent = this;
         this._taskHeader = document.createElement('div');
         this._taskHeader.classList.add('task-header');
@@ -19,15 +19,23 @@ class Task {
         this._taskHeaderTitle.classList.add('task-header-title');
         this._taskHeaderTitle.classList.add('active');
         this._taskHeaderTitle.innerText = this._taskName;
+        this._completedForm = document.createElement('form');
+        this._completedForm.className = 'ui form';
+        this._completedContainer = document.createElement('div');
+        this._completedContainer.className = 'ui toggle checkbox';
+        // this._taskIsCompletedCheckbox.className = '';
         this._taskIsCompletedCheckbox = document.createElement("input");
         this._taskIsCompletedCheckbox.type = "checkbox";
         this._taskIsCompletedCheckbox.checked = obiect.taskCompleted ? true : false;
         this._TaskDeleteButton = document.createElement('div');
+        this._TaskDeleteButton.className = ' ui mini button task-delete-button'
         this._TaskDeleteButton.innerHTML = '<i class="close icon"></i>';
         this._task.appendChild(this._taskHeader);
         this._taskHeader.appendChild(this._taskHeaderTitle);
         this._taskHeader.appendChild(this._TaskDeleteButton);
-        this._taskHeader.appendChild(this._taskIsCompletedCheckbox);
+        this._taskHeader.appendChild(this._completedForm);
+        this._completedForm.appendChild(this._completedContainer);
+        this._completedContainer.appendChild(this._taskIsCompletedCheckbox);
         this._taskHeaderTitle.onclick = this.showTaskDetailsWindow.bind(this);
         this._TaskDeleteButton.onclick = this._parent._deleteTask.bind(this);
         this._taskIsCompletedCheckbox.addEventListener('change', this.checkCompleted.bind(this));
@@ -37,18 +45,15 @@ class Task {
         return this._task
     }
 
-    get id()
-    {
+    get id() {
         return this._taskId;
     }
 
-    get index()
-    {
+    get index() {
         return this._index;
     }
 
-    set index(value)
-    {
+    set index(value) {
         this._index = value;
     }
 
@@ -94,39 +99,33 @@ class Task {
         form.remove()
     }
 
-    async _changeTask(changes = {})
-    {
+    async _changeTask(changes = {}) {
         if (changes == {}) return;
-        const requestBody =
-        {
+        const requestBody = {
             categoryId: changes.categoryId || this._parent.id,
             desc: changes.desc || this._taskDesc,
             deadline: changes.deadline || this._taskDeadlineDate,
             exp: changes.exp || this._taskExp,
             completed: changes.completed || this._completed
         }
-        
+
         const token = sessionStorage.getItem('x-token');
         const requestHeaders = {
             'Content-Type': 'application/json',
             'x-token': token
         };
-        try
-        {
-            const response = await fetch(`/tasks/${this._taskId}`,
-                {
-                    method: "put",
-                    headers: requestHeaders,
-                    body: JSON.stringify(requestBody)
-                });
+        try {
+            const response = await fetch(`/tasks/${this._taskId}`, {
+                method: "put",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
+            });
             if (response.status !== 200) throw response;
             this._taskDesc = requestBody.desc;
             this._taskDeadlineDate = requestBody.deadline;
             this._taskExp = requestBody.exp;
             this._completed = requestBody.completed;
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.log(error);
             alert("Nie udało się połączyć z serwerem.")
             // location.reload();       // do odświeżenia strony gdy coś pójdzie nie tak

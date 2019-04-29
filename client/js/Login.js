@@ -39,15 +39,19 @@ class Login {
             isRegisterCreated: false,
         };
         this._form = document.createElement("form");
-        this._form.classList.add("login-form");
+        this._form.className = "ui form login-form";
         this._form.innerHTML = `
-            <input class="login-button login-back-arrow" id="login-back-arrow" type="button" value="🡐" hidden>
+        <h1 class="main-header"> Witaj w najlepszym TO-DO na świecie!</h1>
+        <h2 class = "login-header">Zaloguj się</h2>
+            <input class=" login-button login-back-arrow" id="login-back-arrow" type="button" value="🡐" hidden>
             <input class="login-input" id="login-email" type="email" placeholder="${this._text.email}">
             <input class="login-input" id="login-password" type="password" placeholder="${this._text.password}">
-            <label><input class="login-checkbox" id="login-new-member" type="checkbox" >${this._text.signUp}</label>
+            <div class ="ui checkbox"> 
+                <input class="login-checkbox" id="login-new-member" type="checkbox">
+                <label class = "label">${this._text.signUp}</label></div>
             <div class="login-buttons" id="login-buttons-wrapper">
-                <input class="login-submit login-button" id="login-submit" type="submit" value="${this._text.submit}" disabled>
-                <input class="login-button" id="login-lost-password" type="button" value="${this._text.lostPassword}">
+                <input class="ui button teal login-submit login-button" id="login-submit" type="submit" value="${this._text.submit}">
+                <input class="ui button teal login-button" id="login-lost-password" type="button" value="${this._text.lostPassword}">
             </div>`;
         this._backArrow = this._form.querySelector("#login-back-arrow");
         this._email = this._form.querySelector("#login-email");
@@ -356,31 +360,27 @@ class Login {
         this._submitOnOff.call(this);
     }
 
-    async autoLogin(token)
-    {
-        try
-        {    
-            let response = await fetch("/users/me", 
-                {
-                    method: "get",
-                    headers:
-                    {
-                        "x-token": token,
-                    }
-                });
+    async autoLogin(token) {
+        try {
+            let response = await fetch("/users/me", {
+                method: "get",
+                headers: {
+                    "x-token": token,
+                }
+            });
             if (response.status !== 200) throw response;
             response = await response.json();
-            const user = { user: response.userWithDetails};
+            const user = {
+                user: response.userWithDetails
+            };
             const mainView = new MainView(user);
             document.querySelector("#main").appendChild(mainView.render());
             return true;
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.log(error);
             throw false;
-        }  
-    }   
+        }
+    }
 }
 
 export default Login;

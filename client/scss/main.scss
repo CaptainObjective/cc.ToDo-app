@@ -208,3 +208,19 @@ button {
     font-size: 2.8em;
     color: $loginText
 }
+
+.task {
+    margin-top: 1vh !important;
+
+    &-header {
+        display: flex;
+    }
+
+    &-header-title {
+        width: 70%;
+    }
+}
+
+.task-delete-button {
+    order: 1
+}

@@ -98,8 +98,8 @@ class Category {
 
                 to._tasksList.splice(newIndex, 0, task);
                 to._tasksList.forEach((task, index) => task.index = index);
-                console.log(from);
-                console.log(to);
+                
+                task._parent = to;
             }
             catch (error)
             {

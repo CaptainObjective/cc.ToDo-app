@@ -73,7 +73,7 @@ class Task {
         const requestBody = {
             categoryId: this._parent.id,
             desc: form.firstElementChild.value,
-            deadline: this.taskDeadlineDate,
+            deadline: this._taskDeadlineDate,
             exp: this._taskExp,
             completed: this.taskCompleted
         }
@@ -94,6 +94,44 @@ class Task {
         form.remove()
     }
 
+    async _changeTask(changes = {})
+    {
+        if (changes == {}) return;
+        const requestBody =
+        {
+            categoryId: changes.categoryId || this._parent.id,
+            desc: changes.desc || this._taskDesc,
+            deadline: changes.deadline || this._taskDeadlineDate,
+            exp: changes.exp || this._taskExp,
+            completed: changes.completed || this._completed
+        }
+        const token = sessionStorage.getItem('x-token');
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            'x-token': token
+        };
+        try
+        {
+            const response = await fetch(`/tasks/${this._taskId}`,
+                {
+                    method: "put",
+                    headers: requestHeaders,
+                    body: JSON.stringify(requestBody)
+                });
+            if (response.status !== 200) throw response;
+            this._taskDesc = requestBody.desc;
+            this._taskDeadlineDate = requestBody.deadline;
+            this._taskExp = requestBody.exp;
+            this._completed = requestBody.completed;
+        }
+        catch (error)
+        {
+            console.log(error);
+            alert("Nie udało się połączyć z serwerem.")
+            // location.reload();       // do odświeżenia strony gdy coś pójdzie nie tak
+        }
+    }
+
     async checkCompleted() {
         const token = sessionStorage.getItem('x-token');
         const requestHeaders = {
@@ -103,7 +141,7 @@ class Task {
         const requestBody = {
             categoryId: this._parent.id,
             desc: this._taskDesc,
-            deadline: this.taskDeadlineDate,
+            deadline: this._taskDeadlineDate,
             exp: this._taskExp,
             completed: this.completed
         };

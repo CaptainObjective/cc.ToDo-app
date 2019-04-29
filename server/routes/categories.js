@@ -34,27 +34,30 @@ router.put('/:id', auth, categoryAuth, async (req, res, next) => {
 
     try {
         const request = new sql.Request();
-        if (!changeOrder) {
+        if (changeOrder) {
+            if (req.body.prev) {
+                const validPrevRequest = new sql.Request();
+                let validPrev = await validPrevRequest
+                    .query(`SELECT 1 FROM Categories WHERE CategoryId = ${req.body.prev} AND CategoryUserId = ${req.user.id}`)
+                validPrev = validPrev.recordset[0];
+                if (!validPrev) return res.status(403).send('Unallowable "prev" value');
+            }
+
             await request
-                .input('CategoryName', sql.NVarChar(50), req.body.name)
-                .query(`UPDATE Categories SET CategoryName = @CategoryName WHERE CategoryId = ${req.params.id}`)
-            return res.send('Category updated');
-        }
-        
-        if (req.body.prev) {
-            const validPrevRequest = new sql.Request();
-            let validPrev = await validPrevRequest
-                .query(`SELECT 1 FROM Categories WHERE CategoryId = ${req.body.prev} AND CategoryUserId = ${req.user.id}`)
-            validPrev = validPrev.recordset[0];
-            if (!validPrev) return res.status(403).send('Unallowable "prev" value');
+                .input('CategoryId', req.params.id)
+                .input('CategoryUserId', sql.Int, req.user.id)
+                .input('CategoryPrev', sql.Int, req.body.prev)
+                .execute('UpdateCategoryOrder')
+            return res.send('Category order changed');       
         }
 
         await request
-            .input('CategoryId', req.params.id)
+            .input('CategoryId', sql.Int, req.params.id)
             .input('CategoryUserId', sql.Int, req.user.id)
-            .input('CategoryPrev', sql.Int, req.body.prev)
-            .execute('UpdateCategoryOrder')
-        return res.send('Category order changed');
+            .input('CategoryName', sql.NVarChar(50), req.body.name)
+            .input('CategoryArchived', sql.Bit, Number(req.body.archived))
+            .execute('UpdateCategory')
+        return res.send('Category updated');        
     }
     catch (err) {
         next(err);
@@ -65,7 +68,7 @@ router.delete('/:id', auth, categoryAuth, async(req, res, next) => {
     try {
         const request = new sql.Request();
         await request
-            .input('CategoryId', req.params.id)
+            .input('CategoryId', sql.Int, req.params.id)
             .execute('DeleteCategory')
         return res.send('Category deleted');
     } catch (err) {
@@ -85,7 +88,10 @@ function validateEditCategory(category, changeOrder) {
     if (changeOrder)
         schema = { prev: Joi.number().integer().allow(null).required() };
     else
-        schema = { name: Joi.string().max(50).required() };
+        schema = { 
+            name: Joi.string().max(50).required(),
+            archived: Joi.boolean().required()
+        };
     return Joi.validate(category, schema);
 }
 

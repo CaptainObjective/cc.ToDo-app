@@ -1,5 +1,6 @@
 import Task from './Task'
 import MainView from './MainView';
+import Sortable from "sortablejs";
 
 class Category {
     constructor(obiekt = {}) {
@@ -57,12 +58,95 @@ class Category {
 
         if (obiekt._tasksList) {
             const tasks = obiekt._tasksList;
-            tasks.forEach(this._createTaskFromServer.bind(this));
+            tasks.sortByPrevAndId().forEach(this._createTaskFromServer.bind(this));
         }
+        this._enableMoving();
     }
 
     render() {
         return this._category
+    }
+
+    async _moveTask(task, from, to, newIndex)
+    {
+        if (!Number.isInteger(newIndex) || task.index === newIndex || newIndex > this._tasksList.length - 1 || newIndex < 0) return;
+        if(from === to) this._moveTaskInsideCategory(task, newIndex);
+        else
+        {
+            try
+            {
+                const response = await fetch(`/tasks/${task.id}`,
+                    {
+                        method: "put",
+                        headers: 
+                            {
+                                'Content-Type': 'application/json',
+                                "x-token": this.parent._token
+                            },
+                        body: JSON.stringify(
+                            {
+                                categoryId: to.id,
+                                desc: task._taskDesc,
+                                exp: task._taskExp,
+                                completed: task._completed
+                            })
+                    })
+                if (response.status !== 200) throw response;
+
+                from._tasksList.splice(task.index, 1);
+                from._tasksList.forEach((task, index) => task.index = index);
+
+                to._tasksList.splice(newIndex, 0, task);
+                to._tasksList.forEach((task, index) => task.index = index);
+                console.log(from);
+                console.log(to);
+            }
+            catch (error)
+            {
+                console.log(error);
+                alert("Nie można się połączyć z serwerem!")
+                location.reload();
+            }
+        }
+    }
+
+    async _moveTaskInsideCategory(task, newIndex)
+    {
+        try
+        {
+            console.log(task);
+            const tempList = [...this._tasksList];
+            tempList.splice(task.index, 1);
+            tempList.splice(newIndex, 0, task);
+            const oldIndex = task.index;
+            
+            const prevList = tempList.map((el, index) => index ? tempList[index-1].id : null);
+            
+            const requestHeaders = {
+                'Content-Type': 'application/json',
+                "x-token": this.parent._token
+            };
+            const requestBody = {
+                prev: prevList[newIndex]
+            };
+            let response = await fetch(`/tasks/${task.id}?order=true`,
+                {
+                    method: "put",
+                    headers: requestHeaders,
+                    body: JSON.stringify(requestBody)
+
+                })
+            if (response.status !== 200) throw response;
+
+            this._tasksList = tempList;
+            this._tasksList.forEach((cat, index) => cat.index = index);
+        }
+        catch (error)
+        {
+            console.log(error);
+            alert("Nie można się połączyć z serwerem!")
+            location.reload();
+        }
     }
 
     showChangeNameInput() {
@@ -95,7 +179,8 @@ class Category {
             if (response.status !== 200) throw response;
         } catch (error) {
             alert("Nie udało się połączyć z serwerem!");
-            return
+            console.log(error);
+            location.reload();
         }
         this.name = form.firstElementChild.value;
         this._categoryHeaderTitle.innerText = this.name;
@@ -222,10 +307,10 @@ class Category {
             taskFromServer = await response.json();
         } catch (error) {
             alert("Nie udało się połączyć z serwerem!");
-            return;
+            console.log(error);
+            location.reload();
         }
 
-        console.log(taskFromServer)
 
         const task = new Task({
             taskId: taskFromServer.id,
@@ -243,7 +328,6 @@ class Category {
     }
 
     _createTaskFromServer(taskFromServer, index) {
-        console.log(taskFromServer)
         const task = new Task({
             taskParent: this,
             taskId: taskFromServer.id,
@@ -261,14 +345,13 @@ class Category {
     }
 
     async _deleteTask() {
-        this._parent._tasksList.splice(this.taskIndex, 1);
+        this._parent._tasksList.splice(this.index, 1);
         const token = sessionStorage.getItem('x-token');
         const requestHeaders = {
             'Content-Type': 'application/json',
             'x-token': token
         };
         try {
-            console.log(this._taskId)
             const response = await fetch(`/tasks/${this._taskId}`, {
                 method: "delete",
                 headers: requestHeaders,
@@ -276,10 +359,11 @@ class Category {
             if (response.status !== 200) throw response;
         } catch (error) {
             alert("Nie udało się połączyć z serwerem!");
-            return;
+            console.log(error);
+            location.reload();
         }
         this.render().remove();
-        this._parent._tasksList.forEach((task, index) => task.taskIndex = index)
+        this._parent._tasksList.forEach((task, index) => task.index = index)
     }
 
     copyCategory() {
@@ -316,6 +400,19 @@ class Category {
 
     sortByAlphabet() {
         console.log('sortuje alfabetycznie')
+    }
+
+    _enableMoving()
+    {
+        new Sortable(this._categoryTasksWrapper,
+            {
+                group: "category",
+                animation: 150,
+                onEnd: (evt) =>
+                    {
+                        this._moveTask(evt.item.parent, evt.from.parentElement.parentElement.parent, evt.to.parentElement.parentElement.parent, evt.newIndex);
+                    }
+            })
     }
 }
 

@@ -55,7 +55,7 @@ class Category {
         this._categoryCopyButton.onclick = this.copyCategory.bind(this);
         this._addNewTaskButton.onclick = this.addNewTask.bind(this);
         this._categorySortButton.onclick = this.showSortMethods.bind(this)
-
+        console.log(obiekt._tasksList);
         if (obiekt._tasksList) {
             const tasks = obiekt._tasksList;
             tasks.sortByPrevAndId().forEach(this._createTaskFromServer.bind(this));
@@ -69,10 +69,13 @@ class Category {
 
     async _moveTask(task, from, to, newIndex)
     {
-        if (!Number.isInteger(newIndex) || task.index === newIndex || newIndex > this._tasksList.length - 1 || newIndex < 0) return;
+        console.log(arguments)
+        if (!Number.isInteger(newIndex) || newIndex < 0) return;
+        console.log(from === to);
         if (from === to) {this._moveTaskInsideCategory(task, newIndex)}
         else
         {
+            console.log("woof");
             try
             {
                 const response = await fetch(`/tasks/${task.id}`,
@@ -97,8 +100,10 @@ class Category {
                 from._tasksList.forEach((task, index) => task.index = index);
 
                 to._tasksList.push(task);
+                console.log(to._tasksList);
                 task._parent = to;
-                // this._moveTaskInsideCategory(task, newIndex);
+                task.index = to._tasksList.length -1 ;
+                to._moveTaskInsideCategory(task, newIndex, true);
             }
             catch (error)
             {
@@ -109,13 +114,12 @@ class Category {
         }
     }
 
-    async _moveTaskInsideCategory(task, newIndex)
+    async _moveTaskInsideCategory(task, newIndex, categoryChanged = false)
     {
+        if (task.index === newIndex && !categoryChanged) return;
         try
         {
-            console.log(task);
             const tempList = [...this._tasksList];
-            console.log(tempList);
             tempList.splice(task.index, 1);
             tempList.splice(newIndex, 0, task);
             const oldIndex = task.index;
@@ -137,7 +141,6 @@ class Category {
                     body: JSON.stringify(requestBody)
 
                 })
-            console.log(response);
             if (response.status !== 200) throw response;
 
             this._tasksList = tempList;
@@ -330,6 +333,7 @@ class Category {
     }
 
     _createTaskFromServer(taskFromServer, index) {
+        console.log(taskFromServer);
         const task = new Task({
             taskParent: this,
             taskId: taskFromServer.id,

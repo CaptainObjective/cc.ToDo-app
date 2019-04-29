@@ -92,8 +92,10 @@ button {
 }
 
 .container-main {
-    //display: none;
+    display: flex;
     position: fixed;
+    justify-content: center;
+    align-items: center;
     top: 0;
     left: 0;
     height: 100%;
@@ -101,21 +103,6 @@ button {
     background-color: rgba(0, 0, 0, .7);
     z-index: 10;
 }
-
-.taskDetailWindow {
-    //display: none;
-    position: absolute;
-    width: 600px;
-    z-index: 15;
-    top: 50px;
-    left: 50%;
-    margin: 0px 0 0 -300px;
-    padding: 50px;
-    border-radius: 3px;
-    background-color: #ccc;
-}
-
-
 
 // DONT MARGE THIS TO MASTER!!! (login-form)
 .login-form {

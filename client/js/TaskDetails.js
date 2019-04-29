@@ -158,7 +158,7 @@ class TaskDetails {
     changeDeadline(e) {
         e.preventDefault();
         const deadline = this._taskDeadline.children[1].value;
-        this.parent._deadline = deadline;
+        this.parent._taskDeadlineDate = deadline;
     }
 
     changeExp(e) {

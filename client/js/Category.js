@@ -66,31 +66,26 @@ class Category {
         return this._category
     }
 
-    async _moveTask(task, from, to, newIndex)
-    {
+    async _moveTask(task, from, to, newIndex) {
         if (!Number.isInteger(newIndex) || newIndex < 0) return;
-        if (from === to) {this._moveTaskInsideCategory(task, newIndex)}
-        else
-        {
-            try
-            {
-                const response = await fetch(`/tasks/${task.id}`,
-                    {
-                        method: "put",
-                        headers: 
-                            {
-                                'Content-Type': 'application/json',
-                                "x-token": this.parent._token
-                            },
-                        body: JSON.stringify(
-                            {
-                                categoryId: to.id,
-                                desc: task._taskDesc,
-                                exp: task._taskExp,
-                                completed: task._completed
-                            })
+        if (from === to) {
+            this._moveTaskInsideCategory(task, newIndex)
+        } else {
+            try {
+                const response = await fetch(`/tasks/${task.id}`, {
+                    method: "put",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "x-token": this.parent._token
+                    },
+                    body: JSON.stringify({
+                        categoryId: to.id,
+                        desc: task._taskDesc,
+                        exp: task._taskExp,
+                        completed: task._completed
                     })
                 })
+
                 if (response.status !== 200) throw response;
 
                 from._tasksList.splice(task.index, 1);
@@ -98,11 +93,9 @@ class Category {
 
                 to._tasksList.push(task);
                 task._parent = to;
-                task.index = to._tasksList.length -1 ;
+                task.index = to._tasksList.length - 1;
                 to._moveTaskInsideCategory(task, newIndex, true);
-            }
-            catch (error)
-            {
+            } catch (error) {
                 console.log(error);
                 alert("Nie można się połączyć z serwerem!")
                 throw error;
@@ -111,11 +104,9 @@ class Category {
         }
     }
 
-    async _moveTaskInsideCategory(task, newIndex, categoryChanged = false)
-    {
+    async _moveTaskInsideCategory(task, newIndex, categoryChanged = false) {
         if (task.index === newIndex && !categoryChanged) return;
-        try
-        {
+        try {
             const tempList = [...this._tasksList];
             tempList.splice(task.index, 1);
             tempList.splice(newIndex, 0, task);

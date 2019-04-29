@@ -19,23 +19,22 @@ class Task {
         this._taskHeaderTitle.classList.add('task-header-title');
         this._taskHeaderTitle.classList.add('active');
         this._taskHeaderTitle.innerText = this._taskName;
-        this._completedForm = document.createElement('form');
-        this._completedForm.className = 'ui form';
-        this._completedContainer = document.createElement('div');
-        this._completedContainer.className = 'ui toggle checkbox';
-        // this._taskIsCompletedCheckbox.className = '';
+        this._taskCompletedContainer = document.createElement('div');
+        this._taskCompletedContainer.className = 'ui mini teal button completed-container';
         this._taskIsCompletedCheckbox = document.createElement("input");
+        this._taskCompletedLabel = document.createElement('label');
+        this._taskCompletedLabel.innerText = '';
         this._taskIsCompletedCheckbox.type = "checkbox";
         this._taskIsCompletedCheckbox.checked = obiect.taskCompleted ? true : false;
         this._TaskDeleteButton = document.createElement('div');
-        this._TaskDeleteButton.className = ' ui mini button task-delete-button'
+        this._TaskDeleteButton.className = ' ui mini teal button task-delete-button'
         this._TaskDeleteButton.innerHTML = '<i class="close icon"></i>';
         this._task.appendChild(this._taskHeader);
         this._taskHeader.appendChild(this._taskHeaderTitle);
         this._taskHeader.appendChild(this._TaskDeleteButton);
-        this._taskHeader.appendChild(this._completedForm);
-        this._completedForm.appendChild(this._completedContainer);
-        this._completedContainer.appendChild(this._taskIsCompletedCheckbox);
+        this._taskHeader.appendChild(this._taskCompletedContainer);
+        this._taskCompletedContainer.appendChild(this._taskCompletedLabel);
+        this._taskCompletedContainer.appendChild(this._taskIsCompletedCheckbox);
         this._taskHeaderTitle.onclick = this.showTaskDetailsWindow.bind(this);
         this._TaskDeleteButton.onclick = this._parent._deleteTask.bind(this);
         this._taskIsCompletedCheckbox.addEventListener('change', this.checkCompleted.bind(this));

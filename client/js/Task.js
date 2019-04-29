@@ -2,16 +2,15 @@ import MainView from './MainView';
 import TaskDetails from './TaskDetails';
 class Task {
     constructor(obiect = {}) {
-        console.log(obiect);
         this._taskDeadlineDate = obiect.taskDeadlineDate;
         this._parent = obiect.taskParent;
         this._taskId = obiect.taskId;
         this._taskName = obiect.taskName;
         this._createdDate = obiect.createdDate;
         this._index = obiect.taskIndex;
-        this._taskExp = 1;
+        this._taskExp = obiect.taskExp || 1;
         this._taskDesc = obiect.taskName;
-        this._completed = obiect.taskCompleted;
+        this._completed = obiect.taskComplted !== undefined? obiect.taskCompleted : false;
         this._task = document.createElement('div');
         this._task.classList.add('task');
         this._task.parent = this;
@@ -107,7 +106,7 @@ class Task {
             exp: changes.exp || this._taskExp,
             completed: changes.completed !== undefined ? changes.completed : this._completed
         }
-        
+        console.log(requestBody);
         const token = sessionStorage.getItem('x-token');
         const requestHeaders = {
             'Content-Type': 'application/json',
@@ -152,7 +151,6 @@ class Task {
             taskId: this._taskId,
             desc: this._taskDesc
         };
-        console.log(this, requestBody)
         let taskDetailsFromServer = {};
         try {
             const response = await fetch("/subtasks", {

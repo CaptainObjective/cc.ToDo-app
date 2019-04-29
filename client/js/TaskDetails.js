@@ -4,6 +4,7 @@ import Task from './Task';
 class TaskDetails {
     constructor(obiekt) {
         this.parent = obiekt.parent;
+        console.log(this.parent);
         this.id = obiekt.id;
         this._taskDetailsContainer = document.createElement('div');
         this._taskDetailsContainer.classList.add('container-main');
@@ -43,8 +44,8 @@ class TaskDetails {
         this._deadlineHeader.classList.add("deadline-date-header");
         this._deadlineHeader.innerText = "Deadline"
         this._inputDeadline = document.createElement("input");
-        this._inputDeadline.value = this.parent._deadline;
         this._inputDeadline.type = "date";
+        this._inputDeadline.value = this.parent._taskDeadlineDate ? this.parent._taskDeadlineDate.substring(0,10) :undefined;
         this._deadlineButton = document.createElement("button")
         this._deadlineButton.classList.add("button-deadline-date")
         this._deadlineButton.innerText = "Prześlij"
@@ -59,7 +60,7 @@ class TaskDetails {
         this._taskExpCheckBox1 = document.createElement("input");
         this._taskExpCheckBox1.type = "radio";
         this._taskExpCheckBox1.name = "exp";
-        this._taskExpCheckBox1.checked = "true";
+        // this._taskExpCheckBox1.checked = "true";
         this._taskExpCheckBox1Text = document.createElement('p');
         this._taskExpCheckBox1Text.innerText = "Łatwy";
 
@@ -80,6 +81,8 @@ class TaskDetails {
         this._checkboxButton = document.createElement("button")
         this._checkboxButton.classList.add("button-checkbox")
         this._checkboxButton.innerText = "Zapisz"
+
+        
 
         this._taskDetailsContainer.appendChild(this._taskDetailsWindow);
         this._taskDetailsWindow.appendChild(this._closeButton);
@@ -122,44 +125,56 @@ class TaskDetails {
 
     }
 
-    changeTaskName(e) {
-        e.preventDefault();
-        const taskname = this._taskDetailTitle.children[1].value;
-        this.parent._taskHeaderTitle.innerText = taskname;
-        this.parent._taskName = taskname;
-    }
-
-    // async changeTaskDescription(e) {
-    //     e.preventDefault();
-    //     const token = sessionStorage.getItem('x-token');
-    //     const requestHeaders = {
-    //         'Content-Type': 'application/json',
-    //         "x-token": token
-    //     }
-    //     const requestBody = {
-    //         desc: this._taskDescription.children[1].value,
-    //         completed: this.parent._completed
-    //     }
-    //     try {
-    //         const response = await fetch(`subtasks/${this.id}`, {
-    //             method: "put",
-    //             headers: requestHeaders,
-    //             body: JSON.stringify(requestBody)
-    //         })
-    //         if (response.status !== 200) throw response;
-    //     } catch (error) {
-    //         alert("Nie udało się połączyć z serwerem!");
-    //         return
-    //     }
-    //     const taskdescription = this._taskDescription.children[1].value;
-    //     this.parent._taskDesc = taskdescription;
-    // }
-
-    changeTaskDescription(e)    // ta wersja lepsza xD
+    changeTaskDetails(e)
     {
-        const desc = this._taskDescription.children[1].value;
-        this.parent._changeTask({ desc });
+        const changed = {};
+        // tutaj proszę do obiektu wpisać wszystkei zmiany
+        this.parent._changeTask(changed);
     }
+
+
+
+    async changeTaskName(e) {
+        e.preventDefault();
+        const desc = this._taskDetailTitle.children[1].value;
+        try
+        {
+            await this.parent._changeTask({ desc });
+            this.parent._taskHeaderTitle.innerText = desc;
+        }
+        catch (error)
+        {
+            console.log(error);
+        }
+    }
+
+
+    async changeTaskDescription(e) {
+        e.preventDefault();
+        const token = sessionStorage.getItem('x-token');
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            "x-token": token
+        }
+        const requestBody = {
+            desc: this._taskDescription.children[1].value,
+            completed: this.parent._completed
+        }
+        try {
+            const response = await fetch(`subtasks/${this.id}`, {
+                method: "put",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
+            })
+            if (response.status !== 200) throw response;
+        } catch (error) {
+            alert("Nie udało się połączyć z serwerem!");
+            return
+        }
+        const taskdescription = this._taskDescription.children[1].value;
+        this.parent._taskDesc = taskdescription;
+    }
+
 
     changeDeadline(e) {
         e.preventDefault();
@@ -185,6 +200,7 @@ class TaskDetails {
 
     checkExp() {
         const exp = this.parent._taskExp;
+        console.log(exp);
         if (exp === 1) {
             this._taskExpCheckBox1Area.firstElementChild.checked = true
         };

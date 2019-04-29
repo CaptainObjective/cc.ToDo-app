@@ -104,6 +104,7 @@ class Category {
             {
                 console.log(error);
                 alert("Nie można się połączyć z serwerem!")
+                throw error;
                 location.reload();
             }
         }
@@ -327,7 +328,6 @@ class Category {
     }
 
     _createTaskFromServer(taskFromServer, index) {
-        console.log(taskFromServer);
         const task = new Task({
             taskParent: this,
             taskId: taskFromServer.id,

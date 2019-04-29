@@ -55,7 +55,6 @@ class Category {
         this._categoryCopyButton.onclick = this.copyCategory.bind(this);
         this._addNewTaskButton.onclick = this.addNewTask.bind(this);
         this._categorySortButton.onclick = this.showSortMethods.bind(this)
-        console.log(obiekt._tasksList);
         if (obiekt._tasksList) {
             const tasks = obiekt._tasksList;
             tasks.sortByPrevAndId().forEach(this._createTaskFromServer.bind(this));
@@ -69,13 +68,10 @@ class Category {
 
     async _moveTask(task, from, to, newIndex)
     {
-        console.log(arguments)
         if (!Number.isInteger(newIndex) || newIndex < 0) return;
-        console.log(from === to);
         if (from === to) {this._moveTaskInsideCategory(task, newIndex)}
         else
         {
-            console.log("woof");
             try
             {
                 const response = await fetch(`/tasks/${task.id}`,
@@ -100,7 +96,6 @@ class Category {
                 from._tasksList.forEach((task, index) => task.index = index);
 
                 to._tasksList.push(task);
-                console.log(to._tasksList);
                 task._parent = to;
                 task.index = to._tasksList.length -1 ;
                 to._moveTaskInsideCategory(task, newIndex, true);
@@ -133,7 +128,6 @@ class Category {
             const requestBody = {
                 prev: prevList[newIndex]
             };
-            console.log(requestBody);
             let response = await fetch(`/tasks/${task.id}?order=true`,
                 {
                     method: "put",
@@ -340,8 +334,8 @@ class Category {
             taskCategoryId: taskFromServer.taskCategoryId,
             taskName: taskFromServer.desc,
             index,
-            taskDeadlineDate: taskFromServer.taskDeadlineDate,
-            taskCompleted: taskFromServer.taskCompleted,
+            taskDeadlineDate: taskFromServer.deadline,
+            taskCompleted: taskFromServer.completed,
             taskExp: taskFromServer.taskExp,
             prev: taskFromServer.prev,
             // taskDesc: taskFromServer.taskDesc

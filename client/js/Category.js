@@ -6,7 +6,7 @@ class Category {
     constructor(obiekt = {}) {
         this.parent = obiekt.parent;
         delete obiekt.parent;
-
+        // console.log(obiekt)
         obiekt = JSON.parse(JSON.stringify(obiekt));
         for (let i in obiekt) {
             this[i] = obiekt[i];
@@ -55,7 +55,6 @@ class Category {
         this._categoryCopyButton.onclick = this.copyCategory.bind(this);
         this._addNewTaskButton.onclick = this.addNewTask.bind(this);
         this._categorySortButton.onclick = this.showSortMethods.bind(this)
-
         if (obiekt._tasksList) {
             const tasks = obiekt._tasksList;
             tasks.sortByPrevAndId().forEach(this._createTaskFromServer.bind(this));
@@ -67,22 +66,29 @@ class Category {
         return this._category
     }
 
-    async _moveTask(task, from, to, newIndex) {
-        if (!Number.isInteger(newIndex) || task.index === newIndex || newIndex > this._tasksList.length - 1 || newIndex < 0) return;
-        if (from === to) this._moveTaskInsideCategory(task, newIndex);
-        else {
-            try {
-                const response = await fetch(`/tasks/${task.id}`, {
-                    method: "put",
-                    headers: {
-                        'Content-Type': 'application/json',
-                        "x-token": this.parent._token
-                    },
-                    body: JSON.stringify({
-                        categoryId: to.id,
-                        desc: task._taskDesc,
-                        exp: task._taskExp,
-                        completed: task._completed
+    async _moveTask(task, from, to, newIndex)
+    {
+        if (!Number.isInteger(newIndex) || newIndex < 0) return;
+        if (from === to) {this._moveTaskInsideCategory(task, newIndex)}
+        else
+        {
+            try
+            {
+                const response = await fetch(`/tasks/${task.id}`,
+                    {
+                        method: "put",
+                        headers: 
+                            {
+                                'Content-Type': 'application/json',
+                                "x-token": this.parent._token
+                            },
+                        body: JSON.stringify(
+                            {
+                                categoryId: to.id,
+                                desc: task._taskDesc,
+                                exp: task._taskExp,
+                                completed: task._completed
+                            })
                     })
                 })
                 if (response.status !== 200) throw response;
@@ -90,21 +96,26 @@ class Category {
                 from._tasksList.splice(task.index, 1);
                 from._tasksList.forEach((task, index) => task.index = index);
 
-                to._tasksList.splice(newIndex, 0, task);
-                to._tasksList.forEach((task, index) => task.index = index);
-
+                to._tasksList.push(task);
                 task._parent = to;
-            } catch (error) {
+                task.index = to._tasksList.length -1 ;
+                to._moveTaskInsideCategory(task, newIndex, true);
+            }
+            catch (error)
+            {
                 console.log(error);
                 alert("Nie można się połączyć z serwerem!")
+                throw error;
                 location.reload();
             }
         }
     }
 
-    async _moveTaskInsideCategory(task, newIndex) {
-        try {
-            console.log(task);
+    async _moveTaskInsideCategory(task, newIndex, categoryChanged = false)
+    {
+        if (task.index === newIndex && !categoryChanged) return;
+        try
+        {
             const tempList = [...this._tasksList];
             tempList.splice(task.index, 1);
             tempList.splice(newIndex, 0, task);
@@ -132,7 +143,7 @@ class Category {
         } catch (error) {
             console.log(error);
             alert("Nie można się połączyć z serwerem!")
-            location.reload();
+            // location.reload();
         }
     }
 
@@ -321,8 +332,8 @@ class Category {
             taskCategoryId: taskFromServer.taskCategoryId,
             taskName: taskFromServer.desc,
             index,
-            taskDeadlineDate: taskFromServer.taskDeadlineDate,
-            taskCompleted: taskFromServer.taskCompleted,
+            taskDeadlineDate: taskFromServer.deadline,
+            taskCompleted: taskFromServer.completed,
             taskExp: taskFromServer.taskExp,
             prev: taskFromServer.prev,
             // taskDesc: taskFromServer.taskDesc

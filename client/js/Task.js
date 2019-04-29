@@ -2,14 +2,15 @@ import MainView from './MainView';
 import TaskDetails from './TaskDetails';
 class Task {
     constructor(obiect = {}) {
+        this._taskDeadlineDate = obiect.taskDeadlineDate;
         this._parent = obiect.taskParent;
         this._taskId = obiect.taskId;
         this._taskName = obiect.taskName;
         this._createdDate = obiect.createdDate;
         this._index = obiect.taskIndex;
-        this._taskExp = 1;
+        this._taskExp = obiect.taskExp || 1;
         this._taskDesc = obiect.taskName;
-        this._completed = false;
+        this._completed = obiect.taskComplted !== undefined? obiect.taskCompleted : false;
         this._task = document.createElement('div');
         this._task.className = 'ui segment task';
         this._task.parent = this;
@@ -25,7 +26,7 @@ class Task {
         this._taskCompletedLabel = document.createElement('label');
         this._taskCompletedLabel.innerText = '';
         this._taskIsCompletedCheckbox.type = "checkbox";
-        this._taskIsCompletedCheckbox.checked = obiect.taskCompleted ? true : false;
+        this._taskIsCompletedCheckbox.checked = this._completed;
         this._TaskDeleteButton = document.createElement('div');
         this._TaskDeleteButton.className = ' ui mini teal button task-delete-button'
         this._TaskDeleteButton.innerHTML = '<i class="close icon"></i>';
@@ -105,9 +106,9 @@ class Task {
             desc: changes.desc || this._taskDesc,
             deadline: changes.deadline || this._taskDeadlineDate,
             exp: changes.exp || this._taskExp,
-            completed: changes.completed || this._completed
+            completed: changes.completed !== undefined ? changes.completed : this._completed
         }
-
+        console.log(requestBody);
         const token = sessionStorage.getItem('x-token');
         const requestHeaders = {
             'Content-Type': 'application/json',
@@ -131,31 +132,11 @@ class Task {
         }
     }
 
-    async checkCompleted() {
-        const token = sessionStorage.getItem('x-token');
-        const requestHeaders = {
-            'Content-Type': 'application/json',
-            'x-token': token
-        };
-        const requestBody = {
-            categoryId: this._parent.id,
-            desc: this._taskDesc,
-            deadline: this._taskDeadlineDate,
-            exp: this._taskExp,
-            completed: this.completed
-        };
-        try {
-            const response = await fetch(`/tasks/${this._taskId}`, {
-                method: "put",
-                headers: requestHeaders,
-                body: JSON.stringify(requestBody)
-            })
-            if (response.status !== 200) throw response;
-            // taskFromServer = await response.json();
-        } catch (error) {
-            alert("Nie udało się połączyć z serwerem!");
-            return;
-        }
+    checkCompleted(event)
+    {
+        const completed = event.currentTarget.checked;
+        console.log(completed);
+        this._changeTask({ completed });
     }
 
     async showTaskDetailsWindow() {
@@ -168,7 +149,6 @@ class Task {
             taskId: this._taskId,
             desc: this._taskDesc
         };
-        console.log(this, requestBody)
         let taskDetailsFromServer = {};
         try {
             const response = await fetch("/subtasks", {

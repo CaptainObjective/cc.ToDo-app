@@ -19,7 +19,6 @@ class MainView {
         user,
         token
     }) {
-
         this._categoriesList = [];
         this._archivedCategoriesList = [];
         this._token = token || sessionStorage.getItem("x-token");

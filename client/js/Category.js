@@ -6,7 +6,7 @@ class Category {
     constructor(obiekt = {}) {
         this.parent = obiekt.parent;
         delete obiekt.parent;
-
+        // console.log(obiekt)
         obiekt = JSON.parse(JSON.stringify(obiekt));
         for (let i in obiekt) {
             this[i] = obiekt[i];
@@ -70,7 +70,7 @@ class Category {
     async _moveTask(task, from, to, newIndex)
     {
         if (!Number.isInteger(newIndex) || task.index === newIndex || newIndex > this._tasksList.length - 1 || newIndex < 0) return;
-        if(from === to) this._moveTaskInsideCategory(task, newIndex);
+        if (from === to) {this._moveTaskInsideCategory(task, newIndex)}
         else
         {
             try
@@ -96,10 +96,9 @@ class Category {
                 from._tasksList.splice(task.index, 1);
                 from._tasksList.forEach((task, index) => task.index = index);
 
-                to._tasksList.splice(newIndex, 0, task);
-                to._tasksList.forEach((task, index) => task.index = index);
-                
+                to._tasksList.push(task);
                 task._parent = to;
+                // this._moveTaskInsideCategory(task, newIndex);
             }
             catch (error)
             {
@@ -116,6 +115,7 @@ class Category {
         {
             console.log(task);
             const tempList = [...this._tasksList];
+            console.log(tempList);
             tempList.splice(task.index, 1);
             tempList.splice(newIndex, 0, task);
             const oldIndex = task.index;
@@ -129,6 +129,7 @@ class Category {
             const requestBody = {
                 prev: prevList[newIndex]
             };
+            console.log(requestBody);
             let response = await fetch(`/tasks/${task.id}?order=true`,
                 {
                     method: "put",
@@ -136,6 +137,7 @@ class Category {
                     body: JSON.stringify(requestBody)
 
                 })
+            console.log(response);
             if (response.status !== 200) throw response;
 
             this._tasksList = tempList;
@@ -145,7 +147,7 @@ class Category {
         {
             console.log(error);
             alert("Nie można się połączyć z serwerem!")
-            location.reload();
+            // location.reload();
         }
     }
 

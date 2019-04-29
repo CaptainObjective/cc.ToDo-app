@@ -2,6 +2,8 @@ import MainView from './MainView';
 import TaskDetails from './TaskDetails';
 class Task {
     constructor(obiect = {}) {
+        console.log(obiect);
+        this._taskDeadlineDate = obiect.taskDeadlineDate;
         this._parent = obiect.taskParent;
         this._taskId = obiect.taskId;
         this._taskName = obiect.taskName;

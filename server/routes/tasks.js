@@ -122,7 +122,7 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
 
         let userWithDetailsRequest = new sql.Request();
         let userWithDetails = await userWithDetailsRequest
-            .query(`EXEC SelectUserWithDetails ${user.UserId}`);
+            .query(`EXEC SelectUserWithDetails ${req.user.id}`);
         userWithDetails = userWithDetails.recordset[0][0];
         res.send({
             user: userWithDetails

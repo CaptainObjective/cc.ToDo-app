@@ -20,13 +20,13 @@ class TaskDetails {
                         <label style="margin-top:10px">Tytuł zadania</label>
                         <input type="text" name="first-name" placeholder="">
                     </div>
+                    <h3 class="header">Poziom trudności</h3>
                     <div class="ui checkbox">
-                        <h3 class="header">Poziom trudności</h3>
-                        <input type="checkbox" tabindex="0" style="margin-top:10px">
+                        <input type="checkbox" style="margin-top:10px">
                         <label style="margin-top:10px">Łatwy</label>
-                        <input type="checkbox" tabindex="0" style="margin-top:10px">
+                        <input type="checkbox" style="margin-top:10px">
                         <label style="margin-top:10px">Średni</label>
-                        <input type="checkbox" tabindex="0" style="margin-top:10px">
+                        <input type="checkbox" style="margin-top:10px">
                         <label style="margin-top:10px">Trudny</label>
                     </div>
                 </form>
@@ -36,7 +36,7 @@ class TaskDetails {
                   <i class="save icon"></i>
                   Zapisz
                 </div>
-                <div class="ui button">
+                <div id="cancel" class="ui button">
                 <i class="cancel icon"></i>
                   Anuluj
                 </div>
@@ -44,8 +44,7 @@ class TaskDetails {
             </div>
         </div>
         `
-        this._taskDetailsContainer.appendChild(this._taskCardContainer)
-
+        this._taskDetailsContainer.appendChild(this._taskCardContainer);
     }
     render() {
         //console.log(this._taskDetailsContainer)

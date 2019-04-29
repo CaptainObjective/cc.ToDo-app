@@ -67,30 +67,24 @@ class Category {
         return this._category
     }
 
-    async _moveTask(task, from, to, newIndex)
-    {
+    async _moveTask(task, from, to, newIndex) {
         if (!Number.isInteger(newIndex) || task.index === newIndex || newIndex > this._tasksList.length - 1 || newIndex < 0) return;
-        if(from === to) this._moveTaskInsideCategory(task, newIndex);
-        else
-        {
-            try
-            {
-                const response = await fetch(`/tasks/${task.id}`,
-                    {
-                        method: "put",
-                        headers: 
-                            {
-                                'Content-Type': 'application/json',
-                                "x-token": this.parent._token
-                            },
-                        body: JSON.stringify(
-                            {
-                                categoryId: to.id,
-                                desc: task._taskDesc,
-                                exp: task._taskExp,
-                                completed: task._completed
-                            })
+        if (from === to) this._moveTaskInsideCategory(task, newIndex);
+        else {
+            try {
+                const response = await fetch(`/tasks/${task.id}`, {
+                    method: "put",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "x-token": this.parent._token
+                    },
+                    body: JSON.stringify({
+                        categoryId: to.id,
+                        desc: task._taskDesc,
+                        exp: task._taskExp,
+                        completed: task._completed
                     })
+                })
                 if (response.status !== 200) throw response;
 
                 from._tasksList.splice(task.index, 1);
@@ -98,11 +92,9 @@ class Category {
 
                 to._tasksList.splice(newIndex, 0, task);
                 to._tasksList.forEach((task, index) => task.index = index);
-                
+
                 task._parent = to;
-            }
-            catch (error)
-            {
+            } catch (error) {
                 console.log(error);
                 alert("Nie można się połączyć z serwerem!")
                 location.reload();
@@ -110,18 +102,16 @@ class Category {
         }
     }
 
-    async _moveTaskInsideCategory(task, newIndex)
-    {
-        try
-        {
+    async _moveTaskInsideCategory(task, newIndex) {
+        try {
             console.log(task);
             const tempList = [...this._tasksList];
             tempList.splice(task.index, 1);
             tempList.splice(newIndex, 0, task);
             const oldIndex = task.index;
-            
-            const prevList = tempList.map((el, index) => index ? tempList[index-1].id : null);
-            
+
+            const prevList = tempList.map((el, index) => index ? tempList[index - 1].id : null);
+
             const requestHeaders = {
                 'Content-Type': 'application/json',
                 "x-token": this.parent._token
@@ -129,20 +119,17 @@ class Category {
             const requestBody = {
                 prev: prevList[newIndex]
             };
-            let response = await fetch(`/tasks/${task.id}?order=true`,
-                {
-                    method: "put",
-                    headers: requestHeaders,
-                    body: JSON.stringify(requestBody)
+            let response = await fetch(`/tasks/${task.id}?order=true`, {
+                method: "put",
+                headers: requestHeaders,
+                body: JSON.stringify(requestBody)
 
-                })
+            })
             if (response.status !== 200) throw response;
 
             this._tasksList = tempList;
             this._tasksList.forEach((cat, index) => cat.index = index);
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.log(error);
             alert("Nie można się połączyć z serwerem!")
             location.reload();
@@ -257,10 +244,10 @@ class Category {
 
     createInputNameTask() {
         const formName = document.createElement('form')
-        formName.classList.add('form-task-name')
+        formName.className = 'ui form form-task-name'
         formName.innerHTML = '<div class="newitem-title-wrapper ui input focus">' +
-            '<textarea class="new-task-title-input" type="text"></textarea>' +
-            '<input class="ui button new-task-title-submit" type ="button"  value="Add">' +
+            '<textarea rows="1" class="new-task-title-input" type="text"></textarea>' +
+            '<input class="ui button new-task-title-submit" type ="button"  value="Dodaj">' +
             '</div>'
         const deleteFormButton = document.createElement('div')
         deleteFormButton.innerHTML = '<i class="fas fa-times"></i>'
@@ -402,17 +389,14 @@ class Category {
         console.log('sortuje alfabetycznie')
     }
 
-    _enableMoving()
-    {
-        new Sortable(this._categoryTasksWrapper,
-            {
-                group: "category",
-                animation: 150,
-                onEnd: (evt) =>
-                    {
-                        this._moveTask(evt.item.parent, evt.from.parentElement.parentElement.parent, evt.to.parentElement.parentElement.parent, evt.newIndex);
-                    }
-            })
+    _enableMoving() {
+        new Sortable(this._categoryTasksWrapper, {
+            group: "category",
+            animation: 150,
+            onEnd: (evt) => {
+                this._moveTask(evt.item.parent, evt.from.parentElement.parentElement.parent, evt.to.parentElement.parentElement.parent, evt.newIndex);
+            }
+        })
     }
 }
 

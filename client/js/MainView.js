@@ -2,11 +2,26 @@ import Category from './Category'
 import Burger from './Burger';
 import Sortable from 'sortablejs'
 
+Array.prototype.sortByPrevAndId = function()
+    {
+        if(this.length === 0) return this;
+
+        const tempList = [];
+        tempList.push(this.find(el => el.prev === null));
+        for(let i = 1; i < this.length; i++)
+        {
+            tempList.push(this.find(el => el.prev === tempList[i-1].id));
+        }
+        this.splice(0, this.length, ...tempList);
+        return this;
+    }
+
 class MainView {
     constructor({
         user,
         token
     }) {
+
         this._categoriesList = [];
         this._archivedCategoriesList = [];
         this._token = token || sessionStorage.getItem("x-token");
@@ -80,8 +95,8 @@ class MainView {
                 this[i] = user[i];
             }
 
-            categories.sort(MainView.sortByPrevAndId).forEach(this._createCategoryFromServer.bind(this));
-            archivedCategories.sort(MainView.sortByPrevAndId).forEach(this._createArchivedCategoryFromServer.bind(this));
+            categories.sortByPrevAndId().forEach(this._createCategoryFromServer.bind(this));
+            archivedCategories.sortByPrevAndId().forEach(this._createArchivedCategoryFromServer.bind(this));
             this._reload();
             this._enableMoving();
         }
@@ -91,12 +106,12 @@ class MainView {
         return this._container;
     }
 
-    static sortByPrevAndId(a, b)
-    {
-        if (a.prev === null || a.id === b.prev) return -1;
-        if (b.prev === null || b.id === a.prev) return 1;
-        return 0;
-    }
+    // static sortByPrevAndId(a, b)
+    // {
+    //     if (a.prev === null || a.id === b.prev) return -1;
+    //     if (b.prev === null || b.id === a.prev) return 1;
+    //     return 0;
+    // }
 
     get categoriesList() {
         return this._categoriesList;
@@ -173,7 +188,6 @@ class MainView {
             return;
         }
 
-        console.log(categoryFromServer)
 
         const category = new Category({
             id: categoryFromServer.id,
@@ -183,7 +197,6 @@ class MainView {
             _tasksList: [],
             _creationDate: new Date().getTime()
         })
-        console.log(category.id);
         this._categoriesList.push(category);
         this._categoryWrapper.appendChild(category.render());
         input.parentElement.remove();
@@ -208,7 +221,6 @@ class MainView {
             const requestBody = {
                 prev: prevList[newIndex]
             };
-            console.log(prevList[newIndex], tempList[newIndex - 1]);
             let response = await fetch(`/categories/${category.id}?order=true`,
                 {
                     method: "put",
@@ -365,10 +377,10 @@ class MainView {
     {
         new Sortable(this._categoryWrapper,
             {
+                group: "mainView",
                 animation: 150,
                 onEnd: (evt) =>
                     {
-                        console.log(evt.newIndex);
                         this._moveCategory(evt.item.parent, evt.newIndex)
                     }
             })

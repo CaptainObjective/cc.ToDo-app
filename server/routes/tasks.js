@@ -48,7 +48,8 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
             if (req.body.prev) {
                 const validPrevRequest = new sql.Request();
                 let validPrev = await validPrevRequest
-                    .query(`SELECT 1 FROM Tasks WHERE TaskId = ${req.params.id}`)
+                
+                    .query(`SELECT 1 FROM Tasks WHERE TaskId = ${req.body.prev} AND TaskCategoryId = (SELECT TaskCategoryId FROM Tasks WHERE TaskId = ${req.params.id})`)
                 validPrev = validPrev.recordset[0];
                 if (!validPrev) return res.status(401).send('Unallowable "prev" value');
             }

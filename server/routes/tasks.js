@@ -76,6 +76,7 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
         task = task.recordset[0];
 
         if (task.TaskCategoryId !== Number(req.body.categoryId)) {
+            console.log("updating category id");
             const updateTaskCategoryRequest = new sql.Request(transaction);
             await updateTaskCategoryRequest
                     .input('TaskId', sql.Int, req.params.id)
@@ -115,7 +116,7 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
             .input('desc', sql.NVarChar(1024), req.body.desc)
             .input('deadline', sql.DateTime, deadline)
             .input('exp', sql.Int, req.body.exp)
-            .input('completed', sql.Bit, Number(req.body.completed))
+            .input('completed', sql.Bit, Number(Boolean(req.body.completed)))
             .query(`UPDATE Tasks
                     SET TaskDesc = @desc, TaskDeadline = @deadline, TaskCompleted = @completed, TaskExp = @exp
                     WHERE TaskId = '${req.params.id}'`);     

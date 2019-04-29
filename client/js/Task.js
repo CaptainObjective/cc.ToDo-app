@@ -12,6 +12,7 @@ class Task {
         this._completed = false;
         this._task = document.createElement('div');
         this._task.classList.add('task');
+        this._task.parent = this;
         this._taskHeader = document.createElement('div');
         this._taskHeader.classList.add('task-header');
         this._taskHeaderTitle = document.createElement('h4');
@@ -33,6 +34,21 @@ class Task {
 
     render() {
         return this._task
+    }
+
+    get id()
+    {
+        return this._taskId;
+    }
+
+    get index()
+    {
+        return this._index;
+    }
+
+    set index(value)
+    {
+        this._index = value;
     }
 
     showChangeNameInput() {

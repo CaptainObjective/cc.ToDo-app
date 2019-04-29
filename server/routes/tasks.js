@@ -42,9 +42,7 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
     if (error) return res.status(400).send(error.details[0].message);
 
     try {
-        const transaction = new sql.Transaction()
-        await new Promise(resolve => transaction.begin(resolve));
-        const request = new sql.Request(transaction);
+        const request = new sql.Request();
 
         if(changeOrder) {
             if (req.body.prev) {
@@ -63,7 +61,7 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
             return res.send('Task order changed');
         }
 
-        const validCategoryRequest = new sql.Request(transaction);
+        const validCategoryRequest = new sql.Request();
         validCategory = await validCategoryRequest
             .query(`SELECT 1 FROM Categories WHERE CategoryId = ${req.body.categoryId} AND CategoryUserId = ${req.user.id}`)
         validCategory = validCategory.recordset[0];
@@ -77,7 +75,7 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
 
         if (task.TaskCategoryId !== Number(req.body.categoryId)) {
             console.log("updating category id");
-            const updateTaskCategoryRequest = new sql.Request(transaction);
+            const updateTaskCategoryRequest = new sql.Request();
             await updateTaskCategoryRequest
                     .input('TaskId', sql.Int, req.params.id)
                     .input('TaskCategoryId', sql.Int, req.body.categoryId)
@@ -85,7 +83,7 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
         }
 
         if (task.TaskCompleted !== Boolean(req.body.completed)) {
-            const updateExp = new sql.Request(transaction);
+            const updateExp = new sql.Request();
             if (req.body.completed) {
                 await updateExp
                         .query(`UPDATE Users
@@ -99,11 +97,11 @@ router.put('/:id', auth, taskAuth, async(req, res, next) => {
                                 WHERE UserId = ${req.user.id}`);
             }
 
-            const expRequest = new sql.Request(transaction);
+            const expRequest = new sql.Request();
             exp = await expRequest.query(`SELECT UserCurrentExp FROM Users WHERE UserId = ${req.user.id}`);
             exp = exp.recordset[0].UserCurrentExp;
 
-            const updateUserequest = new sql.Request(transaction);
+            const updateUserequest = new sql.Request();
             await updateUserequest
                     .query(`UPDATE Users
                             SET UserLevel = (SELECT MAX(LevelNum) FROM Levels WHERE LevelExp <= ${exp}),

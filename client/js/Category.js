@@ -6,7 +6,7 @@ class Category {
     constructor(obiekt = {}) {
         this.parent = obiekt.parent;
         delete obiekt.parent;
-
+        // console.log(obiekt)
         obiekt = JSON.parse(JSON.stringify(obiekt));
         for (let i in obiekt) {
             this[i] = obiekt[i];
@@ -55,7 +55,6 @@ class Category {
         this._categoryCopyButton.onclick = this.copyCategory.bind(this);
         this._addNewTaskButton.onclick = this.addNewTask.bind(this);
         this._categorySortButton.onclick = this.showSortMethods.bind(this)
-
         if (obiekt._tasksList) {
             const tasks = obiekt._tasksList;
             tasks.sortByPrevAndId().forEach(this._createTaskFromServer.bind(this));
@@ -69,8 +68,8 @@ class Category {
 
     async _moveTask(task, from, to, newIndex)
     {
-        if (!Number.isInteger(newIndex) || task.index === newIndex || newIndex > this._tasksList.length - 1 || newIndex < 0) return;
-        if(from === to) this._moveTaskInsideCategory(task, newIndex);
+        if (!Number.isInteger(newIndex) || newIndex < 0) return;
+        if (from === to) {this._moveTaskInsideCategory(task, newIndex)}
         else
         {
             try
@@ -96,10 +95,10 @@ class Category {
                 from._tasksList.splice(task.index, 1);
                 from._tasksList.forEach((task, index) => task.index = index);
 
-                to._tasksList.splice(newIndex, 0, task);
-                to._tasksList.forEach((task, index) => task.index = index);
-                
+                to._tasksList.push(task);
                 task._parent = to;
+                task.index = to._tasksList.length -1 ;
+                to._moveTaskInsideCategory(task, newIndex, true);
             }
             catch (error)
             {
@@ -110,11 +109,11 @@ class Category {
         }
     }
 
-    async _moveTaskInsideCategory(task, newIndex)
+    async _moveTaskInsideCategory(task, newIndex, categoryChanged = false)
     {
+        if (task.index === newIndex && !categoryChanged) return;
         try
         {
-            console.log(task);
             const tempList = [...this._tasksList];
             tempList.splice(task.index, 1);
             tempList.splice(newIndex, 0, task);
@@ -145,7 +144,7 @@ class Category {
         {
             console.log(error);
             alert("Nie można się połączyć z serwerem!")
-            location.reload();
+            // location.reload();
         }
     }
 
@@ -328,14 +327,15 @@ class Category {
     }
 
     _createTaskFromServer(taskFromServer, index) {
+        console.log(taskFromServer);
         const task = new Task({
             taskParent: this,
             taskId: taskFromServer.id,
             taskCategoryId: taskFromServer.taskCategoryId,
             taskName: taskFromServer.desc,
             index,
-            taskDeadlineDate: taskFromServer.taskDeadlineDate,
-            taskCompleted: taskFromServer.taskCompleted,
+            taskDeadlineDate: taskFromServer.deadline,
+            taskCompleted: taskFromServer.completed,
             taskExp: taskFromServer.taskExp,
             prev: taskFromServer.prev,
             // taskDesc: taskFromServer.taskDesc

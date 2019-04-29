@@ -201,13 +201,21 @@ button {
 
     &-header {
         display: flex;
+        justify-content: space-between;
     }
 
     &-header-title {
-        width: 70%;
+        width: 60%;
     }
 }
 
 .task-delete-button {
-    order: 1
+    margin-left: 1vh;
+    order: 1;
+    max-height: 33px;
+}
+
+.completed-container {
+    max-height: 33px;
+
 }

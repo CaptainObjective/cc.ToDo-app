@@ -129,36 +129,42 @@ class TaskDetails {
         this.parent._taskName = taskname;
     }
 
-    async changeTaskDescription(e) {
-        e.preventDefault();
-        const token = sessionStorage.getItem('x-token');
-        const requestHeaders = {
-            'Content-Type': 'application/json',
-            "x-token": token
-        }
-        const requestBody = {
-            desc: this._taskDescription.children[1].value,
-            completed: this.parent._completed
-        }
-        try {
-            const response = await fetch(`subtasks/${this.id}`, {
-                method: "put",
-                headers: requestHeaders,
-                body: JSON.stringify(requestBody)
-            })
-            if (response.status !== 200) throw response;
-        } catch (error) {
-            alert("Nie udało się połączyć z serwerem!");
-            return
-        }
-        const taskdescription = this._taskDescription.children[1].value;
-        this.parent._taskDesc = taskdescription;
+    // async changeTaskDescription(e) {
+    //     e.preventDefault();
+    //     const token = sessionStorage.getItem('x-token');
+    //     const requestHeaders = {
+    //         'Content-Type': 'application/json',
+    //         "x-token": token
+    //     }
+    //     const requestBody = {
+    //         desc: this._taskDescription.children[1].value,
+    //         completed: this.parent._completed
+    //     }
+    //     try {
+    //         const response = await fetch(`subtasks/${this.id}`, {
+    //             method: "put",
+    //             headers: requestHeaders,
+    //             body: JSON.stringify(requestBody)
+    //         })
+    //         if (response.status !== 200) throw response;
+    //     } catch (error) {
+    //         alert("Nie udało się połączyć z serwerem!");
+    //         return
+    //     }
+    //     const taskdescription = this._taskDescription.children[1].value;
+    //     this.parent._taskDesc = taskdescription;
+    // }
+
+    changeTaskDescription(e)    // ta wersja lepsza xD
+    {
+        const desc = this._taskDescription.children[1].value;
+        this.parent._changeTask({ desc });
     }
 
     changeDeadline(e) {
         e.preventDefault();
         const deadline = this._taskDeadline.children[1].value;
-        this.parent._taskDeadlineDate = deadline;
+        this.parent._changeTask({ deadline });
     }
 
     changeExp(e) {
@@ -166,13 +172,15 @@ class TaskDetails {
         const checkbox1 = this._taskExpCheckBox1Area.firstElementChild.checked;
         const checkbox2 = this._taskExpCheckBox2Area.firstElementChild.checked;
         const checkbox3 = this._taskExpCheckBox3Area.firstElementChild.checked;
+        let exp = 0;
         if (checkbox1) {
-            this.parent._taskExp = 1;
+            exp = 1;
         } else if (checkbox2) {
-            this.parent._taskExp = 2;
+            exp = 2;
         } else {
-            this.parent._taskExp = 3;
+            exp = 3;
         }
+        this.parent._changeTask({ exp });
     }
 
     checkExp() {

@@ -105,6 +105,7 @@ class Task {
             exp: changes.exp || this._taskExp,
             completed: changes.completed || this._completed
         }
+        
         const token = sessionStorage.getItem('x-token');
         const requestHeaders = {
             'Content-Type': 'application/json',

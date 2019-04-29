@@ -183,13 +183,17 @@ class Task {
             alert("Nie udało się połączyć z serwerem!");
             return;
         }
-        const taskDetails = new TaskDetails({
+        let taskDetails = new TaskDetails({
             id: taskDetailsFromServer.id,
             parent: this,
             taskName: this._taskName,
             taskDesc: this._taskDesc
         });
         this._task.appendChild(taskDetails.render());
+        document.querySelector('#cancel').addEventListener('click', (e) =>{
+            document.querySelector('.container-main').remove();
+            taskDetails = null;
+        });
     }
 }
 

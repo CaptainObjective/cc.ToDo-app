@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "cc.ToDo app",
   "scripts": {
-    "start": "nodemon ./server/app.js",
+    "start": "node ./server/app.js",
     "front": "webpack --watch"
+  },
+  "engines": {
+    "node": "10.15.1"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
